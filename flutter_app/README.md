@@ -2,6 +2,17 @@
 
 Flutter client for creating and viewing notifications (SMS-style outbound messages), managing recipients, and handling user-facing flows.
 
+```bash
+taskkill /f /im java.exe
+.\gradlew --stop
+rd /s /q "C:\Users\EMF Dev\.gradle\caches\8.10.2"
+flutter clean
+flutter pub get
+flutter run
+# Expose to public network
+ngrok http https://localhost:44344 --host-header=localhost:44344
+```
+
 ## Folder Scope
 
 This README applies only to `flutter_app/`.

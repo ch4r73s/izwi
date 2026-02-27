@@ -155,6 +155,24 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
         message: message,
       );
 
+      final deliveryStatus =
+          smsResult.failedCount == 0
+              ? 'Sent'
+              : smsResult.sentCount == 0
+              ? 'Failed'
+              : 'Partial';
+      final errorDetails =
+          smsResult.failedMsisdns.isEmpty
+              ? null
+              : 'Failed recipients: ${smsResult.failedMsisdns.join(', ')}';
+
+      await _saveNotificationToApi(
+        title: title,
+        message: message,
+        deliveryStatus: deliveryStatus,
+        errorDetails: errorDetails,
+      );
+
       final notification = AppNotification(
         title: title,
         message: message,
@@ -174,16 +192,46 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
     } finally {
       if (mounted) {
         Navigator.of(context, rootNavigator: true).pop();
+        setState(() => _isSubmitting = false);
       }
     }
 
     if (!mounted) return;
-    setState(() => _isSubmitting = false);
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => LoaderScreen()),
       (route) => false,
     );
+  }
+
+  Future<void> _saveNotificationToApi({
+    required String title,
+    required String message,
+    required String deliveryStatus,
+    String? errorDetails,
+  }) async {
+    final token = await _secureStorage.readAccessToken();
+    if (token == null || token.isEmpty) {
+      return;
+    }
+
+    try {
+      await http.post(
+        Uri.parse('${AppConstants.apiBaseUrl}${AppConstants.notificationsPath}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'title': title,
+          'message': message,
+          'type': 'Sms',
+          'deliveryStatus': deliveryStatus,
+          if (errorDetails != null && errorDetails.isNotEmpty)
+            'errorDetails': errorDetails,
+        }),
+      );
+    } catch (_) {}
   }
 
   InputDecoration _inputDecoration({

@@ -8,4 +8,5 @@ class AppConstants {
   static const String registerUserPath = '/api/users/registerUser';
   static const String messageGatewayCredentialsPath =
       '/api/messagegatewayapi/credentials';
+  static const String notificationsPath = '/api/notifications';
 }
