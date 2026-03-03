@@ -1,3 +1,8 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+import 'package:outgoing_notifications/config/app_constants.dart';
 import 'package:outgoing_notifications/enums/user_role.dart';
 import 'package:outgoing_notifications/services/storage/secure_storage_service.dart';
 
@@ -18,27 +23,43 @@ class AuthRepository {
 
   final SecureStorageService _secureStorageService;
 
-  static const Map<String, ({String password, UserRole role})>
-  _demoCredentials = {
-    'admin': (password: 'adminpass', role: UserRole.admin),
-    'user': (password: 'userpass', role: UserRole.user),
-    'guest': (password: 'guestpass', role: UserRole.guest),
-  };
-
   Future<AuthSession?> signIn({
     required String username,
     required String password,
   }) async {
-    final credential = _demoCredentials[username.trim()];
-    if (credential == null || credential.password != password) {
-      return null;
-    }
+    try {
+      final uri = Uri.parse(
+        '${AppConstants.apiBaseUrl}${AppConstants.loginPath}',
+      );
+      final response = await http
+          .post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'identifier': username, 'password': password}),
+          )
+          .timeout(const Duration(seconds: 10));
 
-    return AuthSession(
-      role: credential.role,
-      accessToken: 'local-access-${username.trim()}',
-      refreshToken: 'local-refresh-${username.trim()}',
-    );
+      if (response.statusCode != 200) {
+        return null;
+      }
+
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final accessToken = data['accessToken'] as String;
+      final refreshToken = data['refreshToken'] as String;
+      final roleString =
+          (data['user'] as Map<String, dynamic>)['role'] as String;
+
+      return AuthSession(
+        role: _roleFromApiValue(roleString),
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      );
+    } on TimeoutException {
+      throw Exception('Request timed out. Check your connection.');
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('Unable to reach the server. Check your connection.');
+    }
   }
 
   Future<void> persistSession(AuthSession session) async {
@@ -60,6 +81,17 @@ class AuthRepository {
   }
 
   Future<void> signOut() => _secureStorageService.clearSession();
+
+  UserRole _roleFromApiValue(String role) {
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return UserRole.admin;
+      case 'user':
+        return UserRole.user;
+      default:
+        return UserRole.guest;
+    }
+  }
 
   String _roleToStorageValue(UserRole role) {
     switch (role) {

@@ -145,3 +145,4 @@ C:\Users\EMF Dev\source\side-repos\FlutterProjects\izwi_notifications_app\dotnet
 C:\Users\EMF Dev\source\side-repos\FlutterProjects\izwi_notifications_app\dotnet_api\obj\Debug\net8.0\dotnet_api.csproj.Up2Date
 C:\Users\EMF Dev\source\side-repos\FlutterProjects\izwi_notifications_app\dotnet_api\obj\Debug\net8.0\dotnet_api.genruntimeconfig.cache
 C:\Users\EMF Dev\source\side-repos\FlutterProjects\izwi_notifications_app\dotnet_api\obj\Debug\net8.0\ref\dotnet_api.dll
+C:\Users\EMF Dev\source\side-repos\FlutterProjects\izwi_notifications_app\dotnet_api\obj\Debug\net8.0\dotnet_api.sourcelink.json

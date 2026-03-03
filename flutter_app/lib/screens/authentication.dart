@@ -256,7 +256,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Demo accounts: admin/adminpass, user/userpass, guest/guestpass',
+                                  'Demo accounts: user@izwi.co.zw / Test123!  |  admin@izwi.co.zw / Test123!',
                                   style: TextStyle(
                                     color: Colors.white.withValues(alpha: 0.90),
                                     fontSize: 12.5,

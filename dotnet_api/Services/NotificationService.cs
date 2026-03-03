@@ -47,7 +47,7 @@ public class NotificationService : INotificationService
             .ToListAsync();
     }
 
-    public async Task<Notification> CreateForUserAsync(string userId, string title, string message, string type, string? referenceId, string? createdByUserId, string deliveryStatus = "Sent", string? errorDetails = null)
+    public async Task<Notification> CreateForUserAsync(string userId, string title, string message, string type, string? referenceId, string? createdByUserId, string deliveryStatus = "Sent", string? errorDetails = null, string? recipientsSummary = null)
     {
         var notification = new Notification
         {
@@ -58,7 +58,8 @@ public class NotificationService : INotificationService
             ReferenceId = referenceId,
             CreatedByUserId = createdByUserId,
             DeliveryStatus = string.IsNullOrWhiteSpace(deliveryStatus) ? "Sent" : deliveryStatus,
-            ErrorDetails = errorDetails
+            ErrorDetails = errorDetails,
+            RecipientsSummary = recipientsSummary
         };
 
         await _context.Notifications.AddAsync(notification);
@@ -67,7 +68,7 @@ public class NotificationService : INotificationService
         return notification;
     }
 
-    public async Task<int> CreateForUsersAsync(IEnumerable<string> userIds, string title, string message, string type, string? referenceId, string? createdByUserId, string deliveryStatus = "Sent", string? errorDetails = null)
+    public async Task<int> CreateForUsersAsync(IEnumerable<string> userIds, string title, string message, string type, string? referenceId, string? createdByUserId, string deliveryStatus = "Sent", string? errorDetails = null, string? recipientsSummary = null)
     {
         var ids = userIds.Distinct().ToList();
         if (ids.Count == 0)
@@ -84,7 +85,8 @@ public class NotificationService : INotificationService
             ReferenceId = referenceId,
             CreatedByUserId = createdByUserId,
             DeliveryStatus = string.IsNullOrWhiteSpace(deliveryStatus) ? "Sent" : deliveryStatus,
-            ErrorDetails = errorDetails
+            ErrorDetails = errorDetails,
+            RecipientsSummary = recipientsSummary
         });
 
         await _context.Notifications.AddRangeAsync(notifications);

@@ -66,6 +66,34 @@ public class ClientsController : ControllerBase
     }
 
     [Authorize(Roles = "Admin")]
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var clients = await _dbContext.Clients
+            .Include(c => c.User)
+            .OrderBy(c => c.Name)
+            .Select(c => new
+            {
+                c.Id,
+                c.Name,
+                c.Ssidn,
+                c.SmsCostPerMessage,
+                c.CreatedAt,
+                user = c.User == null ? null : new
+                {
+                    c.User.Id,
+                    c.User.Username,
+                    c.User.Email,
+                    c.User.Role,
+                    c.User.IsActive
+                }
+            })
+            .ToListAsync();
+
+        return Ok(clients);
+    }
+
+    [Authorize(Roles = "Admin")]
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetByUser(string userId)
     {

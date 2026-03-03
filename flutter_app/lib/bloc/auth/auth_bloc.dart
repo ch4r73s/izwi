@@ -30,24 +30,36 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(status: AuthStatus.loading, message: null));
 
-    final session = await _authRepository.signIn(
-      username: event.username,
-      password: event.password,
-    );
+    try {
+      final session = await _authRepository.signIn(
+        username: event.username,
+        password: event.password,
+      );
 
-    if (session == null) {
+      if (session == null) {
+        emit(
+          state.copyWith(
+            status: AuthStatus.failure,
+            message: 'Invalid username or password',
+            role: null,
+          ),
+        );
+        return;
+      }
+
+      await _authRepository.persistSession(session);
+      emit(
+        state.copyWith(status: AuthStatus.authenticated, role: session.role),
+      );
+    } catch (e) {
       emit(
         state.copyWith(
           status: AuthStatus.failure,
-          message: 'Invalid username or password',
+          message: e.toString().replaceFirst('Exception: ', ''),
           role: null,
         ),
       );
-      return;
     }
-
-    await _authRepository.persistSession(session);
-    emit(state.copyWith(status: AuthStatus.authenticated, role: session.role));
   }
 
   Future<void> _onLogoutRequested(

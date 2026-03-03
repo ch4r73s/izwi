@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:outgoing_notifications/config/app_constants.dart';
-import 'package:outgoing_notifications/models/Notification.dart';
 import 'package:outgoing_notifications/models/Recipient.dart';
 import 'package:outgoing_notifications/services/common/capitalize_each_word_formatter.dart';
 import 'package:outgoing_notifications/services/common/send_bulk_sms.dart';
-import 'package:outgoing_notifications/services/database/app_notification_dao.dart';
 import 'package:outgoing_notifications/services/storage/secure_storage_service.dart';
 import 'background/wavy_scaffold.dart';
 import 'recipients_list.dart';
@@ -23,7 +21,6 @@ class CreateNotificationScreen extends StatefulWidget {
 class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
   final _titleController = TextEditingController();
   final _messageController = TextEditingController();
-  final _notificationDao = AppNotificationDao();
   final _secureStorage = SecureStorageService();
   final _maxMessageLength = 320;
   final List<Recipient> _selectedRecipients = [];
@@ -161,24 +158,26 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
               : smsResult.sentCount == 0
               ? 'Failed'
               : 'Partial';
-      final errorDetails =
-          smsResult.failedMsisdns.isEmpty
-              ? null
-              : 'Failed recipients: ${smsResult.failedMsisdns.join(', ')}';
+      final errorDetails = smsResult.failedReasons.isEmpty
+          ? null
+          : smsResult.failedReasons.entries
+              .map((e) => '${e.key}: ${e.value}')
+              .join(' | ');
+
+      final recipientsSummary = jsonEncode(
+        _selectedRecipients.map((r) {
+          final sent = !smsResult.failedMsisdns.contains(r.phoneNumber.trim());
+          return {'name': r.name, 'phone': r.phoneNumber.trim(), 'sent': sent};
+        }).toList(),
+      );
 
       await _saveNotificationToApi(
         title: title,
         message: message,
         deliveryStatus: deliveryStatus,
         errorDetails: errorDetails,
+        recipientsSummary: recipientsSummary,
       );
-
-      final notification = AppNotification(
-        title: title,
-        message: message,
-        date: DateTime.now(),
-      );
-      await _notificationDao.insert(notification);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -209,6 +208,7 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
     required String message,
     required String deliveryStatus,
     String? errorDetails,
+    String? recipientsSummary,
   }) async {
     final token = await _secureStorage.readAccessToken();
     if (token == null || token.isEmpty) {
@@ -229,6 +229,8 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
           'deliveryStatus': deliveryStatus,
           if (errorDetails != null && errorDetails.isNotEmpty)
             'errorDetails': errorDetails,
+          if (recipientsSummary != null)
+            'recipientsSummary': recipientsSummary,
         }),
       );
     } catch (_) {}
@@ -274,7 +276,7 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
                   child: Text(
                     'Create Notification',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Color(0xFF5C3CB0),
                       fontSize: 26,
                       fontWeight: FontWeight.w800,
                     ),

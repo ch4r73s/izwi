@@ -88,7 +88,8 @@ public class NotificationsController : ControllerBase
                 request.ReferenceId,
                 senderUserId,
                 request.DeliveryStatus ?? "Sent",
-                request.ErrorDetails);
+                request.ErrorDetails,
+                request.RecipientsSummary);
 
             return Ok(item);
         }
@@ -123,7 +124,8 @@ public class NotificationsController : ControllerBase
             request.ReferenceId,
             senderUserId,
             request.DeliveryStatus ?? "Sent",
-            request.ErrorDetails);
+            request.ErrorDetails,
+            request.RecipientsSummary);
 
         return Ok(new { created = count });
     }
@@ -241,6 +243,7 @@ public class CreateNotificationRequest
     public string? ReferenceId { get; set; }
     public string? DeliveryStatus { get; set; }
     public string? ErrorDetails { get; set; }
+    public string? RecipientsSummary { get; set; }
 }
 
 public class DeviceTokenRequest

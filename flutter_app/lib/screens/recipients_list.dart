@@ -1,9 +1,11 @@
-import 'dart:typed_data';
-import 'package:excel/excel.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:http/http.dart' as http;
+import 'package:outgoing_notifications/config/app_constants.dart';
 import 'package:outgoing_notifications/models/Contact.dart';
 import 'package:outgoing_notifications/models/Recipient.dart';
+import 'package:outgoing_notifications/services/storage/secure_storage_service.dart';
 import 'background/wavy_scaffold.dart';
 import 'contact_details.dart';
 import 'dialogs/add_contact.dart';
@@ -23,6 +25,7 @@ class RecipientsListScreen extends StatefulWidget {
 }
 
 class _RecipientsListScreenState extends State<RecipientsListScreen> {
+  final _secureStorage = SecureStorageService();
   final List<Contact> _contacts = [];
   final Set<Contact> _selectedContacts = {};
   final _searchController = TextEditingController();
@@ -44,33 +47,30 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
 
   Future<void> _loadContacts() async {
     try {
-      final ByteData data = await rootBundle.load('assets/contacts.xlsx');
-      final bytes = data.buffer.asUint8List();
-      final excel = Excel.decodeBytes(bytes);
+      final token = await _secureStorage.readAccessToken();
+      if (token == null || token.isEmpty) return;
 
-      final loadedContacts = <Contact>[];
-      for (final table in excel.tables.keys) {
-        final sheet = excel.tables[table];
-        if (sheet == null) continue;
+      final response = await http.get(
+        Uri.parse(
+          '${AppConstants.apiBaseUrl}${AppConstants.recipientsPath}/my',
+        ),
+        headers: {'Authorization': 'Bearer $token'},
+      );
 
-        for (final row in sheet.rows) {
-          final name = row.isNotEmpty ? row[0]?.value.toString() ?? '' : '';
-          final phone = row.length > 1 ? row[1]?.value.toString() ?? '' : '';
-          final email = row.length > 2 ? row[2]?.value.toString() ?? '' : '';
+      if (response.statusCode != 200 || !mounted) return;
 
-          if (name.isEmpty) continue;
-          loadedContacts.add(
-            Contact(
-              name: name,
-              phoneNumber: phone,
-              emailAddress: email,
-              isPaused: false,
-            ),
-          );
-        }
-      }
+      final list = jsonDecode(response.body) as List<dynamic>;
+      final loadedContacts =
+          list.map((e) {
+            final m = e as Map<String, dynamic>;
+            return Contact(
+              name: m['name'] as String? ?? '',
+              phoneNumber: m['phoneNumber'] as String? ?? '',
+              emailAddress: m['email'] as String? ?? '',
+              isPaused: !(m['isActive'] as bool? ?? true),
+            );
+          }).toList();
 
-      if (!mounted) return;
       setState(() {
         _contacts
           ..clear()
@@ -136,11 +136,28 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
   }
 
   void _addContact() {
-    showAddContactDialog(context, (newContact) {
-      setState(() {
-        _contacts.add(newContact);
-      });
-      _filterContacts();
+    showAddContactDialog(context, (newContact) async {
+      final token = await _secureStorage.readAccessToken();
+      if (token == null || token.isEmpty) return;
+
+      final response = await http.post(
+        Uri.parse(
+          '${AppConstants.apiBaseUrl}${AppConstants.recipientsPath}',
+        ),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'name': newContact.name,
+          'phoneNumber': newContact.phoneNumber,
+          'email': newContact.emailAddress,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        await _loadContacts();
+      }
     });
   }
 
@@ -164,8 +181,8 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
                     child: Text(
                       widget.isSelectMode ? 'Select Recipients' : 'Recipients',
                       style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
+                        color: Color(0xFF5C3CB0),
+                        fontSize: 26,
                         fontWeight: FontWeight.w800,
                       ),
                     ),

@@ -1,14 +1,18 @@
 import 'package:http/http.dart' as http;
+import 'package:outgoing_notifications/models/ebs_response.dart';
 
 class SmsSendResult {
   final int sentCount;
   final int failedCount;
   final List<String> failedMsisdns;
+  /// Raw EBS response bodies for failed numbers, keyed by msisdn.
+  final Map<String, String> failedReasons;
 
   const SmsSendResult({
     required this.sentCount,
     required this.failedCount,
     required this.failedMsisdns,
+    this.failedReasons = const {},
   });
 }
 
@@ -19,6 +23,7 @@ Future<SmsSendResult> sendBulkSms({
   required String message,
 }) async {
   final failedMsisdns = <String>[];
+  final failedReasons = <String, String>{};
   var sentCount = 0;
 
   for (final msisdn in msisdnList) {
@@ -35,13 +40,16 @@ Future<SmsSendResult> sendBulkSms({
 
     try {
       final response = await http.get(uri);
-      if (response.statusCode >= 200 && response.statusCode < 300) {
+      final ebsResponse = EbsResponse.fromXml(response.body);
+      if (ebsResponse.isSuccess) {
         sentCount++;
       } else {
         failedMsisdns.add(msisdn);
+        failedReasons[msisdn] = ebsResponse.toString();
       }
-    } catch (_) {
+    } catch (e) {
       failedMsisdns.add(msisdn);
+      failedReasons[msisdn] = e.toString();
     }
   }
 
@@ -49,5 +57,6 @@ Future<SmsSendResult> sendBulkSms({
     sentCount: sentCount,
     failedCount: failedMsisdns.length,
     failedMsisdns: failedMsisdns,
+    failedReasons: failedReasons,
   );
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:http/http.dart' as http;
+import 'package:outgoing_notifications/config/app_constants.dart';
 import 'package:outgoing_notifications/bloc/auth/auth_bloc.dart';
 import 'package:outgoing_notifications/bloc/auth/auth_event.dart';
 import 'package:outgoing_notifications/bloc/auth/auth_state.dart';
@@ -77,13 +79,43 @@ class _LoaderScreenState extends State<LoaderScreen> {
       (result) => result != ConnectivityResult.none,
     );
 
-    if (!hasConnection && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No internet connection. Some features may not work.'),
-          duration: Duration(seconds: 5),
-        ),
+    if (!hasConnection) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No internet connection. Some features may not work.'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+      return;
+    }
+
+    // Check if the API server is reachable.
+    try {
+      final uri = Uri.parse(
+        '${AppConstants.apiBaseUrl}${AppConstants.healthPath}',
       );
+      final response = await http
+          .get(uri)
+          .timeout(const Duration(seconds: 8));
+      if (response.statusCode != 200 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('API server is unreachable. Login may not work.'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('API server is unreachable. Login may not work.'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 

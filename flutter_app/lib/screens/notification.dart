@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:outgoing_notifications/config/app_constants.dart';
 import 'package:outgoing_notifications/models/Notification.dart';
-import 'package:outgoing_notifications/services/database/app_notification_dao.dart';
+import 'package:outgoing_notifications/services/storage/secure_storage_service.dart';
 import 'package:outgoing_notifications/services/theme_notifier.dart';
 import 'package:provider/provider.dart';
 import 'background/wavy_scaffold.dart';
@@ -18,7 +22,7 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
-  final AppNotificationDao _notificationDao = AppNotificationDao();
+  final _secureStorage = SecureStorageService();
   List<AppNotification> _notifications = [];
   bool _isLoading = true;
 
@@ -30,13 +34,39 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Future<void> _fetchNotifications() async {
     setState(() => _isLoading = true);
-    final fetchedNotifications = await _notificationDao.queryAll();
-    fetchedNotifications.sort((a, b) => b.date.compareTo(a.date));
-    if (!mounted) return;
-    setState(() {
-      _notifications = fetchedNotifications;
-      _isLoading = false;
-    });
+    try {
+      final token = await _secureStorage.readAccessToken();
+      if (token == null || token.isEmpty) {
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
+      final response = await http.get(
+        Uri.parse(
+          '${AppConstants.apiBaseUrl}${AppConstants.notificationsSentPath}',
+        ),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (!mounted) return;
+      if (response.statusCode == 200) {
+        final list = jsonDecode(response.body) as List<dynamic>;
+        final fetched =
+            list
+                .map(
+                  (e) =>
+                      AppNotification.fromJson(e as Map<String, dynamic>),
+                )
+                .toList();
+        fetched.sort((a, b) => b.date.compareTo(a.date));
+        setState(() {
+          _notifications = fetched;
+          _isLoading = false;
+        });
+      } else {
+        setState(() => _isLoading = false);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   List<_NotificationGroup> _groupedNotifications() {
@@ -108,9 +138,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     child: Text(
                       'Notifications',
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 26,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: Color(0xFF5C3CB0),
                       ),
                     ),
                   ),
@@ -290,12 +320,21 @@ class _NotificationTile extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                notification.title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      notification.title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _DeliveryStatusIcon(status: notification.deliveryStatus),
+                ],
               ),
               const SizedBox(height: 5),
               Text(
@@ -329,6 +368,22 @@ class _NotificationTile extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _DeliveryStatusIcon extends StatelessWidget {
+  final String status;
+
+  const _DeliveryStatusIcon({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final (icon, color) = switch (status.toLowerCase()) {
+      'sent' => (Icons.check_circle_rounded, Colors.green),
+      'failed' => (Icons.cancel_rounded, Colors.red),
+      _ => (Icons.warning_amber_rounded, Colors.orange),
+    };
+    return Icon(icon, color: color, size: 18);
   }
 }
 

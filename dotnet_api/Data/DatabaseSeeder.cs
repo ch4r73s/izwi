@@ -28,8 +28,8 @@ public static class DatabaseSeeder
             context,
             standardUser,
             "SSIDN-USER-001",
-            smsUsername: "user@izwi.co.zw",
-            smsPassword: "Test123!",
+            smsUsername: "EMF",
+            smsPassword: "#LetMeIn@EMF123",
             smsCostPerMessage: 0.05m
         );
 

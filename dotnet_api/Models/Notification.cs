@@ -37,6 +37,9 @@ public class Notification
     [MaxLength(1000)]
     public string? ErrorDetails { get; set; }
 
+    // JSON array: [{"name":"...","phone":"...","sent":true}, ...]
+    public string? RecipientsSummary { get; set; }
+
     public bool IsRead { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
