@@ -157,12 +157,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
             const SizedBox(height: 10),
             _InfoCard(
-              title: 'Data Status',
-              value: 'Contacts from assets/contacts.xlsx',
-              icon: Icons.dataset_linked_rounded,
-            ),
-            const SizedBox(height: 10),
-            _InfoCard(
               title: 'Access',
               value: accessValue,
               icon: Icons.verified_user_rounded,

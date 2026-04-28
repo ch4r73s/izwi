@@ -21,6 +21,8 @@ class SecureStorageService {
 
   Future<String?> readAccessToken() => _storage.read(key: _accessTokenKey);
 
+  Future<String?> readRefreshToken() => _storage.read(key: _refreshTokenKey);
+
   Future<String?> readRole() => _storage.read(key: _userRoleKey);
 
   Future<bool> hasActiveSession() async {

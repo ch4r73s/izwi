@@ -63,28 +63,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.17),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
-              ),
-              child: Text(
-                'Control account security, notification behavior, privacy, and theme.',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.92),
-                  fontSize: 14,
+            const SizedBox(height: 4),
+            const Text(
+              'Control account security, notification behavior, privacy, and theme.',
+              style: TextStyle(color: Colors.grey, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            Theme(
+              data: Theme.of(context).copyWith(
+                iconTheme: const IconThemeData(color: Color(0xFF5C3CB0)),
+                listTileTheme: const ListTileThemeData(
+                  iconColor: Color(0xFF5C3CB0),
+                ),
+                expansionTileTheme: const ExpansionTileThemeData(
+                  iconColor: Color(0xFF5C3CB0),
+                  collapsedIconColor: Color(0xFF5C3CB0),
+                  textColor: Color(0xFF5C3CB0),
+                  collapsedTextColor: Colors.black87,
                 ),
               ),
-            ),
-            const SizedBox(height: 14),
-            Container(
+              child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.93),
                 borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: Colors.grey.shade200),
               ),
               child: Column(
                 children: [
@@ -150,6 +153,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ],
               ),
+            ),
             ),
           ],
         ),

@@ -1,9 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:outgoing_notifications/config/app_constants.dart';
 import 'package:outgoing_notifications/models/Contact.dart';
+import 'package:outgoing_notifications/services/common/api_client.dart';
+import 'package:outgoing_notifications/services/storage/secure_storage_service.dart';
 import 'background/wavy_scaffold.dart';
+import 'dialogs/edit_contact.dart';
 import 'dialogs/pause.dart';
 
-class ContactDetailsScreen extends StatelessWidget {
+class ContactDetailsScreen extends StatefulWidget {
   final Contact contact;
   final Function(Contact) onPause;
 
@@ -13,18 +19,83 @@ class ContactDetailsScreen extends StatelessWidget {
     required this.onPause,
   });
 
-  Future<void> _pauseContact(BuildContext context) async {
+  @override
+  State<ContactDetailsScreen> createState() => _ContactDetailsScreenState();
+}
+
+class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
+  final _apiClient = ApiClient(SecureStorageService());
+  late Contact _contact;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _contact = widget.contact;
+  }
+
+  Future<void> _pauseContact() async {
     final confirmPause = await showDialog<bool>(
       context: context,
       builder: (context) => WavyPauseDialog(
-        contact: contact,
-        onPause: onPause,
+        contact: _contact,
+        onPause: widget.onPause,
       ),
     );
 
-    if (confirmPause == true && context.mounted) {
-      onPause(contact);
+    if (confirmPause == true && mounted) {
+      widget.onPause(_contact);
       Navigator.pop(context);
+    }
+  }
+
+  Future<void> _editContact() async {
+    final updated = await showEditContactDialog(context, _contact);
+    if (updated == null || !mounted) return;
+
+    setState(() => _isSaving = true);
+    try {
+      final response = await _apiClient.put(
+        '${AppConstants.recipientsPath}/${_contact.id}',
+        {
+          'name': updated.name,
+          'phoneNumber': updated.phoneNumber,
+          'email': updated.emailAddress,
+          if (updated.address?.isNotEmpty == true) 'address': updated.address,
+          if (updated.ageRange?.isNotEmpty == true) 'ageRange': updated.ageRange,
+          if (updated.sex?.isNotEmpty == true) 'gender': updated.sex,
+        },
+      );
+
+      if (!mounted) return;
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        setState(() {
+          _contact = _contact.copyWith(
+            name: data['name'] as String? ?? updated.name,
+            phoneNumber: data['phoneNumber'] as String? ?? updated.phoneNumber,
+            emailAddress: data['email'] as String? ?? updated.emailAddress,
+            address: data['address'] as String?,
+            ageRange: data['ageRange'] as String?,
+            sex: data['gender'] as String?,
+          );
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Contact updated')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update contact')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update contact')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
@@ -45,16 +116,28 @@ class ContactDetailsScreen extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    contact.name,
+                    _contact.name,
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
+                      color: Color(0xFF5C3CB0),
+                      fontSize: 26,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
                 IconButton.filledTonal(
-                  onPressed: () => _pauseContact(context),
+                  onPressed: _isSaving ? null : _editContact,
+                  icon: _isSaving
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.edit_rounded),
+                  tooltip: 'Edit',
+                ),
+                const SizedBox(width: 8),
+                IconButton.filledTonal(
+                  onPressed: _pauseContact,
                   icon: const Icon(Icons.pause_circle_outline_rounded),
                   tooltip: 'Pause',
                 ),
@@ -79,14 +162,11 @@ class ContactDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _DetailRow(label: 'Phone', value: contact.phoneNumber),
-                  _DetailRow(label: 'Email', value: contact.emailAddress),
-                  if ((contact.address ?? '').isNotEmpty)
-                    _DetailRow(label: 'Address', value: contact.address!),
-                  if ((contact.ageRange ?? '').isNotEmpty)
-                    _DetailRow(label: 'Age Range', value: contact.ageRange!),
-                  if ((contact.sex ?? '').isNotEmpty)
-                    _DetailRow(label: 'Sex', value: contact.sex!),
+                  _DetailRow(label: 'Phone', value: _contact.phoneNumber),
+                  _DetailRow(label: 'Email', value: _contact.emailAddress),
+                  _DetailRow(label: 'Address', value: _contact.address?.isNotEmpty == true ? _contact.address! : '—'),
+                  _DetailRow(label: 'Age Range', value: _contact.ageRange?.isNotEmpty == true ? _contact.ageRange! : '—'),
+                  _DetailRow(label: 'Gender', value: _contact.sex?.isNotEmpty == true ? _contact.sex! : '—'),
                 ],
               ),
             ),

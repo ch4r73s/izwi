@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:outgoing_notifications/config/app_constants.dart';
 import 'package:outgoing_notifications/models/Recipient.dart';
+import 'package:outgoing_notifications/services/common/api_client.dart';
 import 'package:outgoing_notifications/services/common/capitalize_each_word_formatter.dart';
 import 'package:outgoing_notifications/services/common/send_bulk_sms.dart';
 import 'package:outgoing_notifications/services/storage/secure_storage_service.dart';
@@ -21,14 +21,21 @@ class CreateNotificationScreen extends StatefulWidget {
 class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
   final _titleController = TextEditingController();
   final _messageController = TextEditingController();
-  final _secureStorage = SecureStorageService();
+  final _apiClient = ApiClient(SecureStorageService());
   final _maxMessageLength = 320;
   final List<Recipient> _selectedRecipients = [];
   bool _isSubmitting = false;
+  bool _scheduleForLater = false;
+
+  bool get _isValid =>
+      _titleController.text.trim().isNotEmpty &&
+      _messageController.text.trim().isNotEmpty &&
+      _selectedRecipients.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
+    _titleController.addListener(() => setState(() {}));
     _messageController.addListener(() => setState(() {}));
   }
 
@@ -41,32 +48,17 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
 
   Future<({String smsUsername, String smsPassword})?>
   _loadGatewayCredentials() async {
-    final token = await _secureStorage.readAccessToken();
-    if (token == null || token.isEmpty) {
-      return null;
-    }
-
-    final response = await http.get(
-      Uri.parse(
-        '${AppConstants.apiBaseUrl}${AppConstants.messageGatewayCredentialsPath}',
-      ),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      },
+    final response = await _apiClient.get(
+      AppConstants.messageGatewayCredentialsPath,
     );
 
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      return null;
-    }
+    if (response.statusCode < 200 || response.statusCode >= 300) return null;
 
     final body = jsonDecode(response.body) as Map<String, dynamic>;
     final smsUsername = (body['smsUsername'] as String?)?.trim() ?? '';
     final smsPassword = (body['smsPassword'] as String?) ?? '';
 
-    if (smsUsername.isEmpty || smsPassword.isEmpty) {
-      return null;
-    }
+    if (smsUsername.isEmpty || smsPassword.isEmpty) return null;
 
     return (smsUsername: smsUsername, smsPassword: smsPassword);
   }
@@ -94,20 +86,6 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
   Future<void> _saveAndSendNotification() async {
     final title = _titleController.text.trim();
     final message = _messageController.text.trim();
-
-    if (title.isEmpty || message.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Title and message are required')),
-      );
-      return;
-    }
-
-    if (_selectedRecipients.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select at least one recipient')),
-      );
-      return;
-    }
 
     setState(() => _isSubmitting = true);
     showDialog(
@@ -158,11 +136,12 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
               : smsResult.sentCount == 0
               ? 'Failed'
               : 'Partial';
-      final errorDetails = smsResult.failedReasons.isEmpty
-          ? null
-          : smsResult.failedReasons.entries
-              .map((e) => '${e.key}: ${e.value}')
-              .join(' | ');
+      final errorDetails =
+          smsResult.failedReasons.isEmpty
+              ? null
+              : smsResult.failedReasons.entries
+                  .map((e) => '${e.key}: ${e.value}')
+                  .join(' | ');
 
       final recipientsSummary = jsonEncode(
         _selectedRecipients.map((r) {
@@ -210,159 +189,362 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
     String? errorDetails,
     String? recipientsSummary,
   }) async {
-    final token = await _secureStorage.readAccessToken();
-    if (token == null || token.isEmpty) {
-      return;
-    }
-
     try {
-      await http.post(
-        Uri.parse('${AppConstants.apiBaseUrl}${AppConstants.notificationsPath}'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode(<String, dynamic>{
+      await _apiClient.post(
+        AppConstants.notificationsPath,
+        <String, dynamic>{
           'title': title,
           'message': message,
           'type': 'Sms',
           'deliveryStatus': deliveryStatus,
           if (errorDetails != null && errorDetails.isNotEmpty)
             'errorDetails': errorDetails,
-          if (recipientsSummary != null)
-            'recipientsSummary': recipientsSummary,
-        }),
+          if (recipientsSummary != null) 'recipientsSummary': recipientsSummary,
+        },
       );
     } catch (_) {}
   }
 
-  InputDecoration _inputDecoration({
-    required String label,
-    IconData? icon,
-    String? helperText,
-  }) {
-    return InputDecoration(
-      labelText: label,
-      helperText: helperText,
-      prefixIcon: icon == null ? null : Icon(icon),
-      filled: true,
-      fillColor: Colors.white.withValues(alpha: 0.94),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide.none,
-      ),
-    );
-  }
+  void _showPreview() {
+    final title = _titleController.text.trim().isEmpty
+        ? 'Notification Title'
+        : _titleController.text.trim();
+    final message = _messageController.text.trim().isEmpty
+        ? 'Your notification message will appear here.'
+        : _messageController.text.trim();
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final remaining = _maxMessageLength - _messageController.text.length;
-
-    return WavyScaffold(
-      theme: theme,
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-          children: [
-            Row(
-              children: [
-                IconButton.filledTonal(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back_rounded),
-                ),
-                const SizedBox(width: 10),
-                const Expanded(
-                  child: Text(
-                    'Create Notification',
-                    style: TextStyle(
-                      color: Color(0xFF5C3CB0),
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Container(
-              padding: const EdgeInsets.all(12),
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Notification Preview'),
+            content: Container(
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.93),
-                borderRadius: BorderRadius.circular(18),
+                color: Colors.black87,
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: Column(
+              padding: const EdgeInsets.all(16),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextField(
-                    controller: _titleController,
-                    inputFormatters: [CapitalizeEachWordFormatter()],
-                    decoration: _inputDecoration(
-                      label: 'Title',
-                      icon: Icons.title_rounded,
-                    ),
+                  const Icon(
+                    Icons.notifications_rounded,
+                    color: Colors.white,
+                    size: 28,
                   ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _messageController,
-                    maxLength: _maxMessageLength,
-                    minLines: 4,
-                    maxLines: 6,
-                    decoration: _inputDecoration(
-                      label: 'Message',
-                      icon: Icons.message_outlined,
-                      helperText: '$remaining characters remaining',
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF2F6FF),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      _selectedRecipients.isEmpty
-                          ? 'No recipients selected'
-                          : _selectedRecipients.map((r) => r.name).join(', '),
-                      style: const TextStyle(fontSize: 13.5),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      OutlinedButton.icon(
-                        onPressed: _selectRecipients,
-                        icon: const Icon(Icons.group_add_rounded),
-                        label: Text(
-                          'Recipients (${_selectedRecipients.length})',
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed:
-                              _isSubmitting ? null : _saveAndSendNotification,
-                          icon:
-                              _isSubmitting
-                                  ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                  : const Icon(Icons.send_rounded),
-                          label: const Text('Send'),
+                        const SizedBox(height: 4),
+                        Text(
+                          message,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Widget _buildRecipientsField() {
+    const chipLimit = 2;
+    final visible = _selectedRecipients.take(chipLimit).toList();
+    final overflow = _selectedRecipients.length - chipLimit;
+
+    return GestureDetector(
+      onTap: _selectRecipients,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text(
+              'To:',
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                color: Color(0xFF5C3CB0),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child:
+                  _selectedRecipients.isEmpty
+                      ? const Text(
+                        'Who is this for?',
+                        style: TextStyle(color: Colors.grey, fontSize: 14),
+                      )
+                      : Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          ...visible.map(
+                            (r) => Chip(
+                              label: Text(
+                                r.name,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              deleteIcon: const Icon(Icons.close, size: 14),
+                              onDeleted:
+                                  () => setState(
+                                    () => _selectedRecipients.remove(r),
+                                  ),
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              padding: EdgeInsets.zero,
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          ),
+                          if (overflow > 0)
+                            Chip(
+                              label: Text(
+                                '+$overflow more',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              padding: EdgeInsets.zero,
+                              visualDensity: VisualDensity.compact,
+                            ),
+                        ],
+                      ),
+            ),
+            const Icon(
+              Icons.person_add_alt_1_rounded,
+              color: Color(0xFF5C3CB0),
+              size: 20,
+            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Color get _countColor {
+    final remaining = _maxMessageLength - _messageController.text.length;
+    if (remaining <= 20) return Colors.red;
+    if (remaining <= 50) return Colors.orange;
+    return Colors.grey;
+  }
+
+  InputDecoration _fieldDecoration(String hint) => InputDecoration(
+    hintText: hint,
+    hintStyle: const TextStyle(color: Colors.grey),
+    filled: true,
+    fillColor: Colors.white,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: Colors.grey.shade200),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: Colors.grey.shade200),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: const BorderSide(color: Color(0xFF5C3CB0), width: 1.5),
+    ),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final charCount = _messageController.text.length;
+
+    return WavyScaffold(
+      theme: theme,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  IconButton.filledTonal(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back_rounded),
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      'Create Notification',
+                      style: TextStyle(
+                        color: Color(0xFF5C3CB0),
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  IconButton.filledTonal(
+                    onPressed: _showPreview,
+                    icon: const Icon(Icons.preview_rounded),
+                    tooltip: 'Preview',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              Expanded(
+                child: SingleChildScrollView(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildRecipientsField(),
+                      const SizedBox(height: 16),
+
+                      const Text(
+                        'NOTIFICATION TITLE',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF5C3CB0),
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      TextField(
+                        controller: _titleController,
+                        inputFormatters: [CapitalizeEachWordFormatter()],
+                        decoration: _fieldDecoration('Enter subject line...'),
+                      ),
+                      const SizedBox(height: 16),
+
+                      const Text(
+                        'MESSAGE BODY',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF5C3CB0),
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      TextField(
+                        controller: _messageController,
+                        maxLength: _maxMessageLength,
+                        minLines: 8,
+                        maxLines: null,
+                        textAlignVertical: TextAlignVertical.top,
+                        buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
+                        decoration: _fieldDecoration('What do you want to say?'),
+                      ),
+                      const SizedBox(height: 4),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF5C3CB0),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '$charCount / $_maxMessageLength',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: _countColor == Colors.grey ? Colors.white70 : _countColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(Icons.schedule_rounded, size: 20, color: Color(0xFF5C3CB0)),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                'Schedule for later',
+                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                              ),
+                            ),
+                            Switch(
+                              value: _scheduleForLater,
+                              activeThumbColor: const Color(0xFF5C3CB0),
+                              activeTrackColor: const Color(0xFF5C3CB0).withValues(alpha: 0.4),
+                              onChanged: (val) => setState(() => _scheduleForLater = val),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton.icon(
+                          onPressed: _isValid && !_isSubmitting ? _saveAndSendNotification : null,
+                          icon: _isSubmitting
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                )
+                              : const Icon(Icons.send_rounded),
+                          label: const Text(
+                            'Send',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

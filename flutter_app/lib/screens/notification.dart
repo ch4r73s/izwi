@@ -1,17 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:outgoing_notifications/config/app_constants.dart';
 import 'package:outgoing_notifications/models/Notification.dart';
+import 'package:outgoing_notifications/services/common/api_client.dart';
 import 'package:outgoing_notifications/services/storage/secure_storage_service.dart';
 import 'package:outgoing_notifications/services/theme_notifier.dart';
 import 'package:provider/provider.dart';
 import 'background/wavy_scaffold.dart';
 import 'create_notification.dart';
 import 'notification_detail.dart';
-import 'recipients_list.dart';
 import 'settings.dart';
 
 class NotificationScreen extends StatefulWidget {
@@ -22,7 +21,7 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
-  final _secureStorage = SecureStorageService();
+  final _apiClient = ApiClient(SecureStorageService());
   List<AppNotification> _notifications = [];
   bool _isLoading = true;
 
@@ -35,17 +34,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Future<void> _fetchNotifications() async {
     setState(() => _isLoading = true);
     try {
-      final token = await _secureStorage.readAccessToken();
-      if (token == null || token.isEmpty) {
-        if (mounted) setState(() => _isLoading = false);
-        return;
-      }
-      final response = await http.get(
-        Uri.parse(
-          '${AppConstants.apiBaseUrl}${AppConstants.notificationsSentPath}',
-        ),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      final response = await _apiClient.get(AppConstants.notificationsSentPath);
       if (!mounted) return;
       if (response.statusCode == 200) {
         final list = jsonDecode(response.body) as List<dynamic>;
@@ -82,18 +71,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
     return groups.entries
         .map((entry) => _NotificationGroup(entry.key, entry.value))
         .toList();
-  }
-
-  Future<void> _createRecipient() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => RecipientsListScreen(
-          selectedRecipients: [],
-          isSelectMode: false,
-        ),
-      ),
-    );
   }
 
   Future<void> _createNotification() async {
@@ -193,12 +170,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
         ),
       ),
       floatingActionButtons: [
-        FloatingActionButton(
-          heroTag: 'notification_add_person',
-          onPressed: _createRecipient,
-          tooltip: 'Add recipient',
-          child: const Icon(Icons.person_add_alt_1_rounded),
-        ),
         FloatingActionButton(
           heroTag: 'notification_add_message',
           onPressed: _createNotification,

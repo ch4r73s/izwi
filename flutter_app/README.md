@@ -11,6 +11,8 @@ flutter pub get
 flutter run
 # Expose to public network
 ngrok http https://localhost:44344 --host-header=localhost:44344
+
+todo: add refresh token
 ```
 
 ## Folder Scope

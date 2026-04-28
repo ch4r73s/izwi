@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:outgoing_notifications/config/app_constants.dart';
 import 'package:outgoing_notifications/models/Contact.dart';
 import 'package:outgoing_notifications/models/Recipient.dart';
+import 'package:outgoing_notifications/services/common/api_client.dart';
 import 'package:outgoing_notifications/services/storage/secure_storage_service.dart';
 import 'background/wavy_scaffold.dart';
 import 'contact_details.dart';
@@ -25,12 +25,13 @@ class RecipientsListScreen extends StatefulWidget {
 }
 
 class _RecipientsListScreenState extends State<RecipientsListScreen> {
-  final _secureStorage = SecureStorageService();
+  final _apiClient = ApiClient(SecureStorageService());
   final List<Contact> _contacts = [];
   final Set<Contact> _selectedContacts = {};
   final _searchController = TextEditingController();
   List<Contact> _filteredContacts = [];
   bool _selectAll = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -46,38 +47,39 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
   }
 
   Future<void> _loadContacts() async {
+    setState(() => _isLoading = true);
     try {
-      final token = await _secureStorage.readAccessToken();
-      if (token == null || token.isEmpty) return;
+      final response = await _apiClient.get('${AppConstants.recipientsPath}/my');
 
-      final response = await http.get(
-        Uri.parse(
-          '${AppConstants.apiBaseUrl}${AppConstants.recipientsPath}/my',
-        ),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      if (!mounted) return;
+      if (response.statusCode == 200) {
+        final list = jsonDecode(response.body) as List<dynamic>;
+        final loadedContacts =
+            list.map((e) {
+              final m = e as Map<String, dynamic>;
+              return Contact(
+                id: m['id'] as String? ?? '',
+                name: m['name'] as String? ?? '',
+                phoneNumber: m['phoneNumber'] as String? ?? '',
+                emailAddress: m['email'] as String? ?? '',
+                address: m['address'] as String?,
+                ageRange: m['ageRange'] as String?,
+                sex: m['gender'] as String?,
+                isPaused: !(m['isActive'] as bool? ?? true),
+              );
+            }).toList();
 
-      if (response.statusCode != 200 || !mounted) return;
-
-      final list = jsonDecode(response.body) as List<dynamic>;
-      final loadedContacts =
-          list.map((e) {
-            final m = e as Map<String, dynamic>;
-            return Contact(
-              name: m['name'] as String? ?? '',
-              phoneNumber: m['phoneNumber'] as String? ?? '',
-              emailAddress: m['email'] as String? ?? '',
-              isPaused: !(m['isActive'] as bool? ?? true),
-            );
-          }).toList();
-
-      setState(() {
-        _contacts
-          ..clear()
-          ..addAll(loadedContacts);
-        _filteredContacts = List<Contact>.from(_contacts);
-      });
-    } catch (_) {}
+        setState(() {
+          _contacts
+            ..clear()
+            ..addAll(loadedContacts);
+          _filteredContacts = List<Contact>.from(_contacts);
+        });
+      }
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   void _filterContacts() {
@@ -137,26 +139,28 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
 
   void _addContact() {
     showAddContactDialog(context, (newContact) async {
-      final token = await _secureStorage.readAccessToken();
-      if (token == null || token.isEmpty) return;
-
-      final response = await http.post(
-        Uri.parse(
-          '${AppConstants.apiBaseUrl}${AppConstants.recipientsPath}',
-        ),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
+      final response = await _apiClient.post(
+        AppConstants.recipientsPath,
+        {
           'name': newContact.name,
           'phoneNumber': newContact.phoneNumber,
           'email': newContact.emailAddress,
-        }),
+          if (newContact.address?.isNotEmpty == true) 'address': newContact.address,
+          if (newContact.ageRange?.isNotEmpty == true) 'ageRange': newContact.ageRange,
+          if (newContact.sex?.isNotEmpty == true) 'gender': newContact.sex,
+        },
       );
 
       if (response.statusCode == 200) {
         await _loadContacts();
+      } else if (response.statusCode == 409) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('A recipient with this phone number already exists.'),
+            ),
+          );
+        }
       }
     });
   }
@@ -229,7 +233,9 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
               ),
             const SizedBox(height: 8),
             Expanded(
-              child: ListView.builder(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: _filteredContacts.length,
                 itemBuilder: (context, index) {

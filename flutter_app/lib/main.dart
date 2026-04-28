@@ -6,6 +6,7 @@ import 'package:outgoing_notifications/config/app_constants.dart';
 import 'package:outgoing_notifications/bloc/auth/auth_bloc.dart';
 import 'package:outgoing_notifications/bloc/auth/auth_event.dart';
 import 'package:outgoing_notifications/bloc/auth/auth_state.dart';
+import 'package:outgoing_notifications/config/navigation_key.dart';
 import 'package:outgoing_notifications/config/routes.dart';
 import 'package:outgoing_notifications/enums/user_role.dart';
 import 'package:outgoing_notifications/features/auth/auth_repository.dart';
@@ -34,8 +35,52 @@ void main() {
   );
 }
 
-class CongregationNotificationsApp extends StatelessWidget {
+class CongregationNotificationsApp extends StatefulWidget {
   const CongregationNotificationsApp({super.key});
+
+  @override
+  State<CongregationNotificationsApp> createState() =>
+      _CongregationNotificationsAppState();
+}
+
+class _CongregationNotificationsAppState extends State<CongregationNotificationsApp>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkConnectivity();
+    }
+  }
+
+  Future<void> _checkConnectivity() async {
+    final connectivity = await Connectivity().checkConnectivity();
+    final hasConnection = connectivity.any(
+      (result) => result != ConnectivityResult.none,
+    );
+    if (!hasConnection) {
+      final context = navigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No internet connection. Some features may not work.'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +88,7 @@ class CongregationNotificationsApp extends StatelessWidget {
       builder: (context, themeNotifier, child) {
         return MaterialApp(
           title: 'Izwi',
+          navigatorKey: navigatorKey,
           theme: themeNotifier.currentTheme,
           routes: getRoutes(context),
           home: const LoaderScreen(),
@@ -101,18 +147,18 @@ class _LoaderScreenState extends State<LoaderScreen> {
           .timeout(const Duration(seconds: 8));
       if (response.statusCode != 200 && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('API server is unreachable. Login may not work.'),
-            duration: Duration(seconds: 5),
+          SnackBar(
+            content: Text('API server unreachable: ${AppConstants.apiBaseUrl}'),
+            duration: const Duration(seconds: 5),
           ),
         );
       }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('API server is unreachable. Login may not work.'),
-            duration: Duration(seconds: 5),
+          SnackBar(
+            content: Text('API server unreachable: ${AppConstants.apiBaseUrl}'),
+            duration: const Duration(seconds: 5),
           ),
         );
       }

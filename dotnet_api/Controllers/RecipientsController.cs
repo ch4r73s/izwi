@@ -50,18 +50,53 @@ public class RecipientsController : ControllerBase
             return NotFound(new { message = "Client profile not found for current user" });
         }
 
+        var exists = await _dbContext.Recipients
+            .AnyAsync(r => r.ClientId == client.Id && r.PhoneNumber == request.PhoneNumber.Trim());
+
+        if (exists)
+        {
+            return Conflict(new { message = "A recipient with this phone number already exists." });
+        }
+
         var recipient = new Recipient
         {
             ClientId = client.Id,
             Name = request.Name.Trim(),
             PhoneNumber = request.PhoneNumber.Trim(),
             Email = request.Email?.Trim(),
+            Address = request.Address?.Trim(),
+            AgeRange = request.AgeRange?.Trim(),
+            Gender = request.Gender?.Trim(),
             IsActive = true
         };
 
         await _dbContext.Recipients.AddAsync(recipient);
         await _dbContext.SaveChangesAsync();
 
+        return Ok(recipient);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateRecipient(string id, [FromBody] UpdateRecipientRequest request)
+    {
+        var client = await GetCurrentClientAsync();
+        if (client == null)
+            return NotFound(new { message = "Client profile not found for current user" });
+
+        var recipient = await _dbContext.Recipients
+            .FirstOrDefaultAsync(r => r.Id == id && r.ClientId == client.Id);
+
+        if (recipient == null)
+            return NotFound(new { message = "Recipient not found" });
+
+        recipient.Name = request.Name.Trim();
+        recipient.PhoneNumber = request.PhoneNumber.Trim();
+        recipient.Email = request.Email?.Trim();
+        recipient.Address = request.Address?.Trim();
+        recipient.AgeRange = request.AgeRange?.Trim();
+        recipient.Gender = request.Gender?.Trim();
+
+        await _dbContext.SaveChangesAsync();
         return Ok(recipient);
     }
 
@@ -100,9 +135,22 @@ public class RecipientsController : ControllerBase
     }
 }
 
+public class UpdateRecipientRequest
+{
+    public string Name { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public string? Email { get; set; }
+    public string? Address { get; set; }
+    public string? AgeRange { get; set; }
+    public string? Gender { get; set; }
+}
+
 public class CreateRecipientRequest
 {
     public string Name { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public string? Email { get; set; }
+    public string? Address { get; set; }
+    public string? AgeRange { get; set; }
+    public string? Gender { get; set; }
 }

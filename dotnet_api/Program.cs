@@ -1,5 +1,6 @@
 using System.Text;
 using dotnet_api.Data;
+using dotnet_api.Models;
 using dotnet_api.Interfaces;
 using dotnet_api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -56,7 +57,8 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("AdminOnly", policy => policy.RequireRole(UserRoles.Admin));
 
 builder.Services.AddCors(options =>
 {
@@ -140,14 +142,71 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
-if (app.Environment.IsDevelopment())
+app.MapGet("/health", async (ApplicationDbContext db) =>
 {
-    using var scope = app.Services.CreateScope();
+    try
+    {
+        await db.Database.CanConnectAsync();
+        var pendingMigrations = await db.Database.GetPendingMigrationsAsync();
+        return Results.Ok(new
+        {
+            status = "healthy",
+            database = "connected",
+            pendingMigrations = pendingMigrations.Count()
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new { status = "unhealthy", database = ex.Message }, statusCode: 503);
+    }
+});
+
+app.MapPost("/admin/migrate", async (ApplicationDbContext db) =>
+{
+    var pending = (await db.Database.GetPendingMigrationsAsync()).ToList();
+    await db.Database.MigrateAsync();
+    return Results.Ok(new { applied = pending, count = pending.Count });
+}).RequireAuthorization("AdminOnly");
+
+app.MapPost("/admin/seed", (ApplicationDbContext db) =>
+{
+    DatabaseSeeder.SeedDatabase(db);
+    return Results.Ok(new { status = "seeded" });
+}).RequireAuthorization("AdminOnly");
+
+// Only callable when no admin user exists — self-guarding, no auth required.
+app.MapPost("/admin/bootstrap", (ApplicationDbContext db) =>
+{
+    var adminExists = db.Users.Any(u => u.Role == UserRoles.Admin);
+    if (adminExists)
+        return Results.Conflict(new { error = "Already bootstrapped. Use /admin/seed with an admin token." });
+
+    DatabaseSeeder.SeedDatabase(db);
+    return Results.Ok(new { status = "bootstrapped" });
+});
+
+// Always migrate on startup; only seed test data in Development.
+using (var scope = app.Services.CreateScope())
+{
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
-    DatabaseSeeder.SeedDatabase(db);
+
+    var seedOnStartup = app.Configuration.GetValue<bool>("SeedOnStartup");
+    if (app.Environment.IsDevelopment() || seedOnStartup)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        try
+        {
+            DatabaseSeeder.SeedDatabase(db);
+            logger.LogInformation("Database seeding completed successfully.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Database seeding failed.");
+            throw;
+        }
+    }
 }
 
 app.Run();

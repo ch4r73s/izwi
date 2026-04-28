@@ -2,9 +2,10 @@ class AppConstants {
   AppConstants._();
 
   // Update this once to point the app to your backend.
-  static const String apiBaseUrl = 'https://2135-196-201-16-142.ngrok-free.app';
+  static const String apiBaseUrl = 'https://izwi-api.steinovate.com';
 
   static const String loginPath = '/api/auth/login';
+  static const String refreshPath = '/api/auth/refresh';
   static const String healthPath = '/health';
 
   static const String addUserPath = '/api/users/addUser';

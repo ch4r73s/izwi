@@ -50,47 +50,51 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.17),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.17)),
-              ),
-              child: Text(
-                'Admin controls for account, language, and app theme.',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.92),
-                  fontSize: 14,
+            const SizedBox(height: 4),
+            const Text(
+              'Admin controls for account, language, and app theme.',
+              style: TextStyle(color: Colors.grey, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            Theme(
+              data: Theme.of(context).copyWith(
+                iconTheme: const IconThemeData(color: Color(0xFF5C3CB0)),
+                listTileTheme: const ListTileThemeData(
+                  iconColor: Color(0xFF5C3CB0),
+                ),
+                expansionTileTheme: const ExpansionTileThemeData(
+                  iconColor: Color(0xFF5C3CB0),
+                  collapsedIconColor: Color(0xFF5C3CB0),
+                  textColor: Color(0xFF5C3CB0),
+                  collapsedTextColor: Colors.black87,
                 ),
               ),
-            ),
-            const SizedBox(height: 14),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.93),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Column(
-                children: [
-                  AccountManagementTile(
-                    initiallyExpanded: _isAccountManagementExpanded,
-                    onExpansionChanged: (expanded) {
-                      setState(() {
-                        _isAccountManagementExpanded = expanded;
-                      });
-                    },
-                  ),
-                  const Divider(height: 10),
-                  LanguageAndRegionTile(
-                    selectedLanguage: 'English',
-                    selectedRegion: 'Zimbabwe',
-                  ),
-                  const Divider(height: 10),
-                  ThemeAndAppearanceTile(),
-                ],
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.93),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  children: [
+                    AccountManagementTile(
+                      initiallyExpanded: _isAccountManagementExpanded,
+                      onExpansionChanged: (expanded) {
+                        setState(() {
+                          _isAccountManagementExpanded = expanded;
+                        });
+                      },
+                    ),
+                    const Divider(height: 10),
+                    LanguageAndRegionTile(
+                      selectedLanguage: 'English',
+                      selectedRegion: 'Zimbabwe',
+                    ),
+                    const Divider(height: 10),
+                    ThemeAndAppearanceTile(),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 14),
@@ -99,10 +103,11 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.92),
                 borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.grey.shade200),
               ),
-              child: Row(
-                children: const [
-                  Icon(Icons.admin_panel_settings_rounded),
+              child: const Row(
+                children: [
+                  Icon(Icons.admin_panel_settings_rounded, color: Color(0xFF5C3CB0)),
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
