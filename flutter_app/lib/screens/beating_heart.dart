@@ -47,11 +47,11 @@ class _BeatingHumanHeartScreenState extends State<BeatingHumanHeartScreen>
                     icon: const Icon(Icons.arrow_back_rounded),
                   ),
                   const SizedBox(width: 10),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Beating Heart',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
                       ),

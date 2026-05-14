@@ -161,11 +161,11 @@ class _ClientsScreenState extends State<ClientsScreen> {
                   icon: const Icon(Icons.arrow_back_rounded),
                 ),
                 const SizedBox(width: 10),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Clients',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: theme.colorScheme.primary,
                       fontSize: 26,
                       fontWeight: FontWeight.w800,
                     ),
@@ -188,7 +188,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.94),
+                  color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Form(
@@ -263,12 +263,12 @@ class _ClientsScreenState extends State<ClientsScreen> {
                         padding: EdgeInsets.symmetric(vertical: 10),
                         child: Divider(),
                       ),
-                      const Text(
+                      Text(
                         'SMS Gateway',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black54,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -336,11 +336,11 @@ class _ClientsScreenState extends State<ClientsScreen> {
             // ── Client list ────────────────────────────────────────────
             Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'All Clients',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: theme.colorScheme.primary,
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
@@ -365,13 +365,13 @@ class _ClientsScreenState extends State<ClientsScreen> {
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.90),
+                  color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
                     'No clients yet. Tap + to add one.',
-                    style: TextStyle(color: Colors.black54),
+                    style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
                   ),
                 ),
               )
@@ -397,22 +397,22 @@ class _ClientCard extends StatelessWidget {
     final isActive = user?['isActive'] as bool? ?? false;
     final cost = (client['smsCostPerMessage'] as num?)?.toStringAsFixed(4) ?? '—';
 
+    final cs = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.94),
+        color: cs.surface,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
           CircleAvatar(
             radius: 22,
-            backgroundColor:
-                Theme.of(context).primaryColor.withValues(alpha: 0.15),
+            backgroundColor: cs.primaryContainer,
             child: Icon(
               Icons.business_rounded,
-              color: Theme.of(context).primaryColor,
+              color: cs.primary,
             ),
           ),
           const SizedBox(width: 12),
@@ -437,14 +437,12 @@ class _ClientCard extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   email,
-                  style: const TextStyle(
-                      fontSize: 12.5, color: Colors.black54),
+                  style: TextStyle(fontSize: 12.5, color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'SSIDN: ${client['ssidn'] ?? '—'}  ·  \$$cost/SMS',
-                  style: const TextStyle(
-                      fontSize: 12, color: Colors.black45),
+                  style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                 ),
               ],
             ),
@@ -470,10 +468,11 @@ class _RoleChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final color = switch (role.toLowerCase()) {
       'admin' => Colors.deepPurple,
       'user' => Colors.blue,
-      _ => Colors.grey,
+      _ => cs.outline,
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

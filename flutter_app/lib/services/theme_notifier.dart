@@ -1,66 +1,58 @@
-// import 'package:flutter/material.dart';
-// import 'package:outgoing_notifications/screens/themes/themes.dart';
-
-// class ThemeNotifier extends ChangeNotifier {
-//   ThemeData _currentTheme = lightTheme;
-
-//   final bool _isDarkMode = false;
-//   bool get isDarkMode => _isDarkMode;
-
-//   ThemeData get currentTheme => _currentTheme;
-
-//   void toggleTheme() {
-//     _currentTheme = (_currentTheme == lightTheme) ? darkTheme : lightTheme;
-//     print('Theme toggled: $currentTheme.'); // Debug line
-//     notifyListeners();
-//   }
-//   // bool _isDarkMode = false;
-
-//   // bool get isDarkMode => _isDarkMode;
-
-//   // ThemeData get currentTheme => _isDarkMode ? darkTheme : lightTheme;
-
-//   // void toggleTheme() {
-//   //   _isDarkMode = !_isDarkMode;
-//   //   print('Theme toggled: $_isDarkMode'); // Debug line
-//   //   notifyListeners();
-//   // }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:outgoing_notifications/screens/themes/themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ThemeNotifier extends ChangeNotifier {
-  static const String _themeKey = 'themeMode';
-  ThemeData _currentTheme;
-  bool _isDarkMode;
+enum AppThemeMode { defaultTheme, light, dark }
 
-  ThemeNotifier()
-      : _currentTheme = ThemeData.light(),
-        _isDarkMode = false {
+class ThemeNotifier extends ChangeNotifier {
+  static const String _themeKey = 'appThemeMode';
+
+  AppThemeMode _mode = AppThemeMode.defaultTheme;
+
+  ThemeNotifier() {
     _loadTheme();
   }
 
-  ThemeData get currentTheme => _currentTheme;
-  bool get isDarkMode => _isDarkMode;
+  AppThemeMode get mode => _mode;
 
-  void toggleTheme() {
-    _currentTheme = (_currentTheme == lightTheme) ? darkTheme : lightTheme;
-    print('Theme toggled: $currentTheme.'); // Debug line
+  // kept for compatibility with the legacy Switch widget (now unused)
+  bool get isDarkMode => _mode == AppThemeMode.dark;
+
+  ThemeData get currentTheme => switch (_mode) {
+        AppThemeMode.light => lightTheme,
+        AppThemeMode.dark => darkTheme,
+        _ => defaultTheme,
+      };
+
+  void setTheme(AppThemeMode mode) {
+    _mode = mode;
     _saveTheme();
     notifyListeners();
   }
 
+  // kept so nothing calling toggleTheme() breaks, but prefer setTheme()
+  void toggleTheme() {
+    setTheme(_mode == AppThemeMode.dark ? AppThemeMode.light : AppThemeMode.dark);
+  }
+
   void _loadTheme() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    _isDarkMode = prefs.getBool(_themeKey) ?? false;
-    _currentTheme = _isDarkMode ? ThemeData.dark() : ThemeData.light();
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString(_themeKey);
+    _mode = switch (saved) {
+      'light' => AppThemeMode.light,
+      'dark' => AppThemeMode.dark,
+      _ => AppThemeMode.defaultTheme,
+    };
     notifyListeners();
   }
 
   void _saveTheme() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool(_themeKey, _isDarkMode);
+    final prefs = await SharedPreferences.getInstance();
+    final value = switch (_mode) {
+      AppThemeMode.light => 'light',
+      AppThemeMode.dark => 'dark',
+      _ => 'default',
+    };
+    prefs.setString(_themeKey, value);
   }
 }

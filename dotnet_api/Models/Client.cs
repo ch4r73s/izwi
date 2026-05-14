@@ -33,4 +33,6 @@ public class Client
 
     public virtual ClientSmsGateway? ClientSmsGateway { get; set; }
     public virtual ICollection<Recipient> Recipients { get; set; } = new List<Recipient>();
+    public virtual ICollection<NotificationTemplate> Templates { get; set; } = new List<NotificationTemplate>();
+    public virtual ICollection<ClientPayment> Payments { get; set; } = new List<ClientPayment>();
 }

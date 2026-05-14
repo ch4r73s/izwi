@@ -30,7 +30,7 @@ void showCommonInfoBottomSheet({
                     width: 54,
                     height: 5,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.7),
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(999),
                     ),
                   ),
@@ -38,8 +38,8 @@ void showCommonInfoBottomSheet({
                 const SizedBox(height: 16),
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
                   ),
@@ -48,7 +48,7 @@ void showCommonInfoBottomSheet({
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.94),
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(

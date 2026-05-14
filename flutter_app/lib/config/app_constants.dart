@@ -16,4 +16,9 @@ class AppConstants {
   static const String notificationsSentPath = '/api/notifications/sent';
   static const String recipientsPath = '/api/recipients';
   static const String clientsPath = '/api/clients';
+  static const String templatesPath = '/api/templates';
+  static const String changePasswordPath = '/api/auth/change-password';
+  static const String profilePath = '/api/auth/profile';
+  static const String clientsMyPath = '/api/clients/my';
+  static const String recordSmsPath = '/api/clients/my/record-sms';
 }

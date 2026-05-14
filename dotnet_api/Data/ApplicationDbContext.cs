@@ -19,6 +19,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<DeviceToken> DeviceTokens => Set<DeviceToken>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
+    public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
+    public DbSet<SmsPackage> SmsPackages => Set<SmsPackage>();
+    public DbSet<ClientPayment> ClientPayments => Set<ClientPayment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -132,6 +135,54 @@ public class ApplicationDbContext : DbContext
             .WithOne(csg => csg.Client)
             .HasForeignKey<ClientSmsGateway>(csg => csg.ClientId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<NotificationTemplate>()
+            .HasIndex(t => t.ClientId);
+
+        modelBuilder.Entity<Client>()
+            .HasMany(c => c.Templates)
+            .WithOne(t => t.Client)
+            .HasForeignKey(t => t.ClientId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Client>()
+            .HasMany(c => c.Payments)
+            .WithOne(p => p.Client)
+            .HasForeignKey(p => p.ClientId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SmsPackage>()
+            .HasMany(sp => sp.Payments)
+            .WithOne(p => p.Package)
+            .HasForeignKey(p => p.PackageId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<SmsPackage>().HasData(
+            new SmsPackage
+            {
+                Id = 1,
+                Name = "Starter",
+                Description = "Up to 5,000 SMS per month",
+                MaxSmsLimit = 5000,
+                PricePerSms = 0.0300m
+            },
+            new SmsPackage
+            {
+                Id = 2,
+                Name = "Business",
+                Description = "Up to 10,000 SMS per month",
+                MaxSmsLimit = 10000,
+                PricePerSms = 0.0250m
+            },
+            new SmsPackage
+            {
+                Id = 3,
+                Name = "Enterprise",
+                Description = "Above 10,000 SMS per month",
+                MaxSmsLimit = null,
+                PricePerSms = 0.0200m
+            }
+        );
 
         modelBuilder.Entity<SmsGateway>()
             .HasMany(sg => sg.Credentials)

@@ -6,6 +6,7 @@ using dotnet_api.Interfaces;
 using dotnet_api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SecurityClaim = System.Security.Claims.Claim;
 
@@ -232,6 +233,71 @@ public class AuthController : ControllerBase
         return Ok(new { message = "Logged out successfully" });
     }
 
+    [Authorize]
+    [HttpGet("profile")]
+    public async Task<IActionResult> GetProfile()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+        var user = await _authService.GetUserByIdAsync(userId);
+        if (user == null) return Unauthorized();
+
+        return Ok(new { user.DisplayName, user.Email, user.Username });
+    }
+
+    [Authorize]
+    [HttpPut("profile")]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+        var user = await _authService.GetUserByIdAsync(userId);
+        if (user == null) return Unauthorized();
+
+        if (string.IsNullOrWhiteSpace(request.DisplayName))
+            return BadRequest(new { message = "Display name is required." });
+
+        if (string.IsNullOrWhiteSpace(request.Email))
+            return BadRequest(new { message = "Email is required." });
+
+        var emailChanged = !string.Equals(user.Email, request.Email.Trim(), StringComparison.OrdinalIgnoreCase);
+        if (emailChanged)
+        {
+            var taken = await _dbContext.Users.AnyAsync(u => u.Email == request.Email.Trim() && u.Id != userId);
+            if (taken) return BadRequest(new { message = "That email is already in use." });
+            user.Email = request.Email.Trim();
+            user.Username = request.Email.Trim();
+        }
+
+        user.DisplayName = request.DisplayName.Trim();
+        await _authService.UpdateUserAsync(user);
+
+        return Ok(new { user.DisplayName, user.Email, user.Username });
+    }
+
+    [Authorize]
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        var user = await _authService.GetUserByIdAsync(userId);
+        if (user == null)
+            return Unauthorized();
+
+        if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
+            return BadRequest(new { message = "Current password is incorrect." });
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        await _authService.UpdateUserAsync(user);
+
+        return Ok(new { message = "Password changed successfully." });
+    }
+
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
     {
@@ -367,5 +433,17 @@ public class ForgotPasswordRequest
 public class ResetPasswordRequest
 {
     public string Token { get; set; } = string.Empty;
+    public string NewPassword { get; set; } = string.Empty;
+}
+
+public class UpdateProfileRequest
+{
+    public string DisplayName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+}
+
+public class ChangePasswordRequest
+{
+    public string CurrentPassword { get; set; } = string.Empty;
     public string NewPassword { get; set; } = string.Empty;
 }

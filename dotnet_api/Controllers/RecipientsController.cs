@@ -20,7 +20,10 @@ public class RecipientsController : ControllerBase
     }
 
     [HttpGet("my")]
-    public async Task<IActionResult> GetMyRecipients()
+    public async Task<IActionResult> GetMyRecipients(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null)
     {
         var client = await GetCurrentClientAsync();
         if (client == null)
@@ -28,9 +31,25 @@ public class RecipientsController : ControllerBase
             return NotFound(new { message = "Client profile not found for current user" });
         }
 
-        var recipients = await _dbContext.Recipients
-            .Where(r => r.ClientId == client.Id)
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var query = _dbContext.Recipients
+            .Where(r => r.ClientId == client.Id && r.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim().ToLower();
+            query = query.Where(r =>
+                r.Name.ToLower().Contains(s) ||
+                (r.Email != null && r.Email.ToLower().Contains(s)) ||
+                r.PhoneNumber.Contains(s));
+        }
+
+        var recipients = await query
             .OrderBy(r => r.Name)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
         return Ok(recipients);

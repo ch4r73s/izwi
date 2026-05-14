@@ -1,14 +1,20 @@
+import 'dart:async' show unawaited;
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:outgoing_notifications/config/app_constants.dart';
+import 'package:outgoing_notifications/config/navigation_key.dart';
 import 'package:outgoing_notifications/models/Recipient.dart';
 import 'package:outgoing_notifications/services/common/api_client.dart';
 import 'package:outgoing_notifications/services/common/capitalize_each_word_formatter.dart';
 import 'package:outgoing_notifications/services/common/send_bulk_sms.dart';
+import 'package:outgoing_notifications/services/common/template_resolver.dart';
 import 'package:outgoing_notifications/services/storage/secure_storage_service.dart';
+import 'package:outgoing_notifications/models/notification_template.dart';
 import 'background/wavy_scaffold.dart';
+import 'botttomsheets/template_picker_sheet.dart';
 import 'recipients_list.dart';
 import 'package:outgoing_notifications/main.dart';
-import 'dart:convert';
 
 class CreateNotificationScreen extends StatefulWidget {
   const CreateNotificationScreen({super.key});
@@ -46,32 +52,32 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
     super.dispose();
   }
 
-  Future<({String smsUsername, String smsPassword})?>
+  Future<({String provider, String smsEndpoint, String smsUsername, String smsPassword, String apiKey, String senderId})?>
   _loadGatewayCredentials() async {
-    final response = await _apiClient.get(
-      AppConstants.messageGatewayCredentialsPath,
-    );
-
+    final response = await _apiClient.get(AppConstants.messageGatewayCredentialsPath);
     if (response.statusCode < 200 || response.statusCode >= 300) return null;
 
     final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final provider    = (body['provider']    as String?)?.trim() ?? '';
+    final smsEndpoint = (body['smsEndpoint'] as String?)?.trim() ?? '';
     final smsUsername = (body['smsUsername'] as String?)?.trim() ?? '';
-    final smsPassword = (body['smsPassword'] as String?) ?? '';
+    final smsPassword = (body['smsPassword'] as String?)?.trim() ?? '';
+    final apiKey      = (body['apiKey']      as String?)?.trim() ?? '';
+    final senderId    = (body['senderId']    as String?)?.trim() ?? '';
 
-    if (smsUsername.isEmpty || smsPassword.isEmpty) return null;
+    if (smsEndpoint.isEmpty) return null;
 
-    return (smsUsername: smsUsername, smsPassword: smsPassword);
+    return (provider: provider, smsEndpoint: smsEndpoint, smsUsername: smsUsername, smsPassword: smsPassword, apiKey: apiKey, senderId: senderId);
   }
 
   Future<void> _selectRecipients() async {
     final selectedRecipients = await Navigator.push<List<Recipient>>(
       context,
       MaterialPageRoute(
-        builder:
-            (context) => RecipientsListScreen(
-              selectedRecipients: _selectedRecipients,
-              isSelectMode: true,
-            ),
+        builder: (context) => RecipientsListScreen(
+          selectedRecipients: _selectedRecipients,
+          isSelectMode: true,
+        ),
       ),
     );
 
@@ -86,65 +92,88 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
   Future<void> _saveAndSendNotification() async {
     final title = _titleController.text.trim();
     final message = _messageController.text.trim();
+    final recipientsCopy = List<Recipient>.from(_selectedRecipients);
 
     setState(() => _isSubmitting = true);
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder:
-          (_) => const AlertDialog(
-            title: Text('Sending Notification'),
-            content: Row(
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(width: 16),
-                Text('Please wait...'),
-              ],
-            ),
-          ),
+
+    final gatewayCredentials = await _loadGatewayCredentials();
+    if (!mounted) return;
+
+    if (gatewayCredentials == null) {
+      setState(() => _isSubmitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not load SMS gateway credentials from API')),
+      );
+      return;
+    }
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => LoaderScreen()),
+      (route) => false,
     );
 
-    try {
-      final gatewayCredentials = await _loadGatewayCredentials();
-      if (gatewayCredentials == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Could not load SMS gateway credentials from API'),
-            ),
-          );
-        }
-        return;
-      }
+    final ctx = navigatorKey.currentContext;
+    if (ctx != null) {
+      ScaffoldMessenger.of(ctx).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Sending to ${recipientsCopy.length} recipient${recipientsCopy.length == 1 ? '' : 's'}...',
+          ),
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
 
-      final phoneNumbers =
-          _selectedRecipients
-              .map((r) => r.phoneNumber.trim())
-              .where((n) => n.isNotEmpty)
-              .toList();
+    unawaited(_runSendInBackground(
+      title: title,
+      message: message,
+      recipients: recipientsCopy,
+      gatewayCredentials: gatewayCredentials,
+    ));
+  }
+
+  Future<void> _runSendInBackground({
+    required String title,
+    required String message,
+    required List<Recipient> recipients,
+    required ({
+      String provider,
+      String smsEndpoint,
+      String smsUsername,
+      String smsPassword,
+      String apiKey,
+      String senderId,
+    }) gatewayCredentials,
+  }) async {
+    try {
+      final messages = {
+        for (final r in recipients)
+          if (r.phoneNumber.trim().isNotEmpty)
+            r.phoneNumber.trim(): resolveTemplate(message, r),
+      };
 
       final smsResult = await sendBulkSms(
+        provider: gatewayCredentials.provider,
+        smsEndpoint: gatewayCredentials.smsEndpoint,
         smsUsername: gatewayCredentials.smsUsername,
         smsPassword: gatewayCredentials.smsPassword,
-        msisdnList: phoneNumbers,
-        message: message,
+        apiKey: gatewayCredentials.apiKey,
+        senderId: gatewayCredentials.senderId,
+        messages: messages,
       );
 
-      final deliveryStatus =
-          smsResult.failedCount == 0
-              ? 'Sent'
-              : smsResult.sentCount == 0
+      final deliveryStatus = smsResult.failedCount == 0
+          ? 'Sent'
+          : smsResult.sentCount == 0
               ? 'Failed'
               : 'Partial';
-      final errorDetails =
-          smsResult.failedReasons.isEmpty
-              ? null
-              : smsResult.failedReasons.entries
-                  .map((e) => '${e.key}: ${e.value}')
-                  .join(' | ');
+      final errorDetails = smsResult.failedReasons.isEmpty
+          ? null
+          : smsResult.failedReasons.entries.map((e) => '${e.key}: ${e.value}').join(' | ');
 
       final recipientsSummary = jsonEncode(
-        _selectedRecipients.map((r) {
+        recipients.map((r) {
           final sent = !smsResult.failedMsisdns.contains(r.phoneNumber.trim());
           return {'name': r.name, 'phone': r.phoneNumber.trim(), 'sent': sent};
         }).toList(),
@@ -158,28 +187,27 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
         recipientsSummary: recipientsSummary,
       );
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (smsResult.sentCount > 0) {
+        await _apiClient.post(AppConstants.recordSmsPath, {'count': smsResult.sentCount});
+      }
+
+      final ctx = navigatorKey.currentContext;
+      if (ctx != null) {
+        ScaffoldMessenger.of(ctx).showSnackBar(
           SnackBar(
-            content: Text(
-              'Sent: ${smsResult.sentCount}, Failed: ${smsResult.failedCount}',
-            ),
+            content: Text('Sent: ${smsResult.sentCount}, Failed: ${smsResult.failedCount}'),
+            duration: const Duration(seconds: 6),
           ),
         );
       }
-    } finally {
-      if (mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-        setState(() => _isSubmitting = false);
+    } catch (_) {
+      final ctx = navigatorKey.currentContext;
+      if (ctx != null) {
+        ScaffoldMessenger.of(ctx).showSnackBar(
+          const SnackBar(content: Text('Send failed. Please try again.')),
+        );
       }
     }
-
-    if (!mounted) return;
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => LoaderScreen()),
-      (route) => false,
-    );
   }
 
   Future<void> _saveNotificationToApi({
@@ -197,15 +225,68 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
           'message': message,
           'type': 'Sms',
           'deliveryStatus': deliveryStatus,
-          if (errorDetails != null && errorDetails.isNotEmpty)
-            'errorDetails': errorDetails,
+          if (errorDetails != null && errorDetails.isNotEmpty) 'errorDetails': errorDetails,
           if (recipientsSummary != null) 'recipientsSummary': recipientsSummary,
         },
       );
     } catch (_) {}
   }
 
+  Future<void> _openTemplatePicker() async {
+    final template = await showModalBottomSheet<NotificationTemplate>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const TemplatePickerSheet(),
+    );
+    if (template == null) return;
+    _titleController.text = template.title;
+    _messageController.text = template.body;
+  }
+
+  Future<void> _saveAsTemplate() async {
+    final nameController = TextEditingController();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Save as Template'),
+        content: TextField(
+          controller: nameController,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Template name',
+            hintText: 'e.g. Weekly Update',
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save')),
+        ],
+      ),
+    );
+
+    if (confirmed != true || nameController.text.trim().isEmpty) return;
+
+    final response = await _apiClient.post(
+      AppConstants.templatesPath,
+      {
+        'name': nameController.text.trim(),
+        'title': _titleController.text.trim(),
+        'body': _messageController.text.trim(),
+      },
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response.statusCode == 201 ? 'Template saved.' : 'Failed to save template.'),
+        ),
+      );
+    }
+  }
+
   void _showPreview() {
+    final cs = Theme.of(context).colorScheme;
     final title = _titleController.text.trim().isEmpty
         ? 'Notification Title'
         : _titleController.text.trim();
@@ -215,64 +296,56 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
 
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Notification Preview'),
-            content: Container(
-              decoration: BoxDecoration(
-                color: Colors.black87,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(
-                    Icons.notifications_rounded,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          message,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+      builder: (context) => AlertDialog(
+        title: const Text('Notification Preview'),
+        content: Container(
+          decoration: BoxDecoration(
+            color: cs.inverseSurface,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.notifications_rounded, color: cs.onInverseSurface, size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: cs.onInverseSurface,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Close'),
+                    const SizedBox(height: 4),
+                    Text(
+                      message,
+                      style: TextStyle(
+                        color: cs.onInverseSurface.withValues(alpha: 0.75),
+                        fontSize: 13,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+        ],
+      ),
     );
   }
 
-  Widget _buildRecipientsField() {
+  Widget _buildRecipientsField(ColorScheme cs) {
     const chipLimit = 2;
     final visible = _selectedRecipients.take(chipLimit).toList();
     final overflow = _selectedRecipients.length - chipLimit;
@@ -282,98 +355,75 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cs.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: cs.outline.withValues(alpha: 0.4)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               'To:',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-                color: Color(0xFF5C3CB0),
-              ),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: cs.primary),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child:
-                  _selectedRecipients.isEmpty
-                      ? const Text(
-                        'Who is this for?',
-                        style: TextStyle(color: Colors.grey, fontSize: 14),
-                      )
-                      : Wrap(
-                        spacing: 6,
-                        runSpacing: 4,
-                        children: [
-                          ...visible.map(
-                            (r) => Chip(
-                              label: Text(
-                                r.name,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                              deleteIcon: const Icon(Icons.close, size: 14),
-                              onDeleted:
-                                  () => setState(
-                                    () => _selectedRecipients.remove(r),
-                                  ),
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                              padding: EdgeInsets.zero,
-                              visualDensity: VisualDensity.compact,
-                            ),
+              child: _selectedRecipients.isEmpty
+                  ? Text('Who is this for?', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14))
+                  : Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        ...visible.map(
+                          (r) => Chip(
+                            label: Text(r.name, style: const TextStyle(fontSize: 12)),
+                            deleteIcon: const Icon(Icons.close, size: 14),
+                            onDeleted: () => setState(() => _selectedRecipients.remove(r)),
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            padding: EdgeInsets.zero,
+                            visualDensity: VisualDensity.compact,
                           ),
-                          if (overflow > 0)
-                            Chip(
-                              label: Text(
-                                '+$overflow more',
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                              padding: EdgeInsets.zero,
-                              visualDensity: VisualDensity.compact,
-                            ),
-                        ],
-                      ),
+                        ),
+                        if (overflow > 0)
+                          Chip(
+                            label: Text('+$overflow more', style: const TextStyle(fontSize: 12)),
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            padding: EdgeInsets.zero,
+                            visualDensity: VisualDensity.compact,
+                          ),
+                      ],
+                    ),
             ),
-            const Icon(
-              Icons.person_add_alt_1_rounded,
-              color: Color(0xFF5C3CB0),
-              size: 20,
-            ),
+            Icon(Icons.person_add_alt_1_rounded, color: cs.primary, size: 20),
           ],
         ),
       ),
     );
   }
 
-  Color get _countColor {
+  Color _countColor(ColorScheme cs) {
     final remaining = _maxMessageLength - _messageController.text.length;
     if (remaining <= 20) return Colors.red;
     if (remaining <= 50) return Colors.orange;
-    return Colors.grey;
+    return cs.onPrimary.withValues(alpha: 0.75);
   }
 
-  InputDecoration _fieldDecoration(String hint) => InputDecoration(
+  InputDecoration _fieldDecoration(String hint, ColorScheme cs) => InputDecoration(
     hintText: hint,
-    hintStyle: const TextStyle(color: Colors.grey),
+    hintStyle: TextStyle(color: cs.onSurfaceVariant),
     filled: true,
-    fillColor: Colors.white,
+    fillColor: cs.surface,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: Colors.grey.shade200),
+      borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.4)),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: Colors.grey.shade200),
+      borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.4)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: Color(0xFF5C3CB0), width: 1.5),
+      borderSide: BorderSide(color: cs.primary, width: 1.5),
     ),
     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
   );
@@ -381,7 +431,9 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     final charCount = _messageController.text.length;
+    final hasMessage = _messageController.text.trim().isNotEmpty;
 
     return WavyScaffold(
       theme: theme,
@@ -398,11 +450,11 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
                     icon: const Icon(Icons.arrow_back_rounded),
                   ),
                   const SizedBox(width: 10),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Create Notification',
                       style: TextStyle(
-                        color: Color(0xFF5C3CB0),
+                        color: cs.primary,
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
                       ),
@@ -424,15 +476,15 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildRecipientsField(),
+                      _buildRecipientsField(cs),
                       const SizedBox(height: 16),
 
-                      const Text(
+                      Text(
                         'NOTIFICATION TITLE',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF5C3CB0),
+                          color: cs.primary,
                           letterSpacing: 1.1,
                         ),
                       ),
@@ -440,18 +492,40 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
                       TextField(
                         controller: _titleController,
                         inputFormatters: [CapitalizeEachWordFormatter()],
-                        decoration: _fieldDecoration('Enter subject line...'),
+                        decoration: _fieldDecoration('Enter subject line...', cs),
                       ),
                       const SizedBox(height: 16),
 
-                      const Text(
-                        'MESSAGE BODY',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF5C3CB0),
-                          letterSpacing: 1.1,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            'MESSAGE BODY',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: cs.primary,
+                              letterSpacing: 1.1,
+                            ),
+                          ),
+                          const Spacer(),
+                          GestureDetector(
+                            onTap: _openTemplatePicker,
+                            child: Row(
+                              children: [
+                                Icon(Icons.folder_open_rounded, size: 14, color: cs.primary),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Use Template',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: cs.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 6),
                       TextField(
@@ -461,56 +535,80 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
                         maxLines: null,
                         textAlignVertical: TextAlignVertical.top,
                         buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
-                        decoration: _fieldDecoration('What do you want to say?'),
+                        decoration: _fieldDecoration('What do you want to say?', cs),
                       ),
                       const SizedBox(height: 4),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF5C3CB0),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            '$charCount / $_maxMessageLength',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: _countColor == Colors.grey ? Colors.white70 : _countColor,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: hasMessage ? _saveAsTemplate : null,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.bookmark_add_outlined,
+                                  size: 14,
+                                  color: hasMessage ? cs.primary : cs.onSurface.withValues(alpha: 0.3),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Save as Template',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: hasMessage ? cs.primary : cs.onSurface.withValues(alpha: 0.3),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: cs.primary,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              '$charCount / $_maxMessageLength',
+                              style: TextStyle(fontSize: 11, color: _countColor(cs)),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 12),
 
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: cs.surface,
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: Colors.grey.shade200),
+                          border: Border.all(color: cs.outline.withValues(alpha: 0.4)),
                         ),
                         child: Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
+                                color: cs.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Icon(Icons.schedule_rounded, size: 20, color: Color(0xFF5C3CB0)),
+                              child: Icon(Icons.schedule_rounded, size: 20, color: cs.primary),
                             ),
                             const SizedBox(width: 12),
-                            const Expanded(
+                            Expanded(
                               child: Text(
                                 'Schedule for later',
-                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: cs.onSurface,
+                                ),
                               ),
                             ),
                             Switch(
                               value: _scheduleForLater,
-                              activeThumbColor: const Color(0xFF5C3CB0),
-                              activeTrackColor: const Color(0xFF5C3CB0).withValues(alpha: 0.4),
+                              activeThumbColor: cs.primary,
+                              activeTrackColor: cs.primary.withValues(alpha: 0.4),
                               onChanged: (val) => setState(() => _scheduleForLater = val),
                             ),
                           ],
@@ -524,16 +622,13 @@ class _CreateNotificationScreenState extends State<CreateNotificationScreen> {
                         child: ElevatedButton.icon(
                           onPressed: _isValid && !_isSubmitting ? _saveAndSendNotification : null,
                           icon: _isSubmitting
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 18,
                                   height: 18,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: cs.onPrimary),
                                 )
                               : const Icon(Icons.send_rounded),
-                          label: const Text(
-                            'Send',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                          ),
+                          label: const Text('Send', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           ),

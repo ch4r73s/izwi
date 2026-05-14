@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../background/wavy_scaffold.dart';
+import '../billing.dart';
 import '../settings/account_management.dart';
 import '../settings/language_and_region_tile.dart';
 import '../settings/theme_and_appearance_tile.dart';
@@ -25,6 +26,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return WavyScaffold(
       theme: theme,
@@ -40,51 +42,46 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                   tooltip: 'Back',
                 ),
                 const SizedBox(width: 10),
-                const Text(
+                Text(
                   'Settings',
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF5C3CB0),
+                    color: cs.primary,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Admin controls for account, language, and app theme.',
-              style: TextStyle(color: Colors.grey, fontSize: 13),
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
             ),
             const SizedBox(height: 16),
             Theme(
-              data: Theme.of(context).copyWith(
-                iconTheme: const IconThemeData(color: Color(0xFF5C3CB0)),
-                listTileTheme: const ListTileThemeData(
-                  iconColor: Color(0xFF5C3CB0),
-                ),
-                expansionTileTheme: const ExpansionTileThemeData(
-                  iconColor: Color(0xFF5C3CB0),
-                  collapsedIconColor: Color(0xFF5C3CB0),
-                  textColor: Color(0xFF5C3CB0),
-                  collapsedTextColor: Colors.black87,
+              data: theme.copyWith(
+                iconTheme: IconThemeData(color: cs.primary),
+                listTileTheme: ListTileThemeData(iconColor: cs.primary),
+                expansionTileTheme: ExpansionTileThemeData(
+                  iconColor: cs.primary,
+                  collapsedIconColor: cs.primary,
+                  textColor: cs.primary,
+                  collapsedTextColor: cs.onSurface,
                 ),
               ),
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.93),
+                  color: cs.surface,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: cs.outline.withValues(alpha: 0.4)),
                 ),
                 child: Column(
                   children: [
                     AccountManagementTile(
                       initiallyExpanded: _isAccountManagementExpanded,
-                      onExpansionChanged: (expanded) {
-                        setState(() {
-                          _isAccountManagementExpanded = expanded;
-                        });
-                      },
+                      onExpansionChanged: (expanded) =>
+                          setState(() => _isAccountManagementExpanded = expanded),
                     ),
                     const Divider(height: 10),
                     LanguageAndRegionTile(
@@ -93,6 +90,20 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                     ),
                     const Divider(height: 10),
                     ThemeAndAppearanceTile(),
+                    const Divider(height: 10),
+                    ListTile(
+                      leading: const Icon(Icons.sim_card_outlined),
+                      title: const Text(
+                        'Subscription & Billing',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                      ),
+                      subtitle: const Text('View your plan, SMS balance, and payment history.'),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const BillingScreen()),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -101,18 +112,18 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.92),
+                color: cs.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: cs.outline.withValues(alpha: 0.4)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.admin_panel_settings_rounded, color: Color(0xFF5C3CB0)),
-                  SizedBox(width: 10),
+                  Icon(Icons.admin_panel_settings_rounded, color: cs.primary),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'Changes are applied immediately for this session.',
-                      style: TextStyle(fontSize: 13),
+                      style: TextStyle(fontSize: 13, color: cs.onSurface),
                     ),
                   ),
                 ],

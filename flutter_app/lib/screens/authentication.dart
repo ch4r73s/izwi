@@ -71,7 +71,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
         borderSide: BorderSide.none,
       ),
       filled: true,
-      fillColor: Colors.white.withValues(alpha: 0.92),
+      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
     );
   }
@@ -128,9 +128,9 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(28),
-                            color: Colors.black.withValues(alpha: 0.14),
+                            color: theme.colorScheme.surface,
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.20),
+                              color: theme.colorScheme.outline.withValues(alpha: 0.3),
                             ),
                             boxShadow: const [
                               BoxShadow(
@@ -150,21 +150,21 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                                   children: [
                                     CircleAvatar(
                                       radius: 28,
-                                      backgroundColor: Colors.white,
+                                      backgroundColor: theme.colorScheme.primaryContainer,
                                       child: Icon(
                                         Icons.notifications_active_rounded,
-                                        color: theme.primaryColor,
+                                        color: theme.colorScheme.primary,
                                         size: 28,
                                       ),
                                     ),
                                     const SizedBox(width: 12),
-                                    const Expanded(
+                                    Expanded(
                                       child: Text(
                                         'Izwi',
                                         style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w700,
-                                          color: Colors.white,
+                                          color: theme.colorScheme.primary,
                                         ),
                                       ),
                                     ),
@@ -174,7 +174,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                                 Text(
                                   'Sign in to continue',
                                   style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.90),
+                                    color: theme.colorScheme.onSurfaceVariant,
                                     fontSize: 15,
                                   ),
                                 ),
@@ -236,8 +236,8 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                                         fontWeight: FontWeight.w700,
                                         fontSize: 16,
                                       ),
-                                      backgroundColor: Colors.white,
-                                      foregroundColor: theme.primaryColor,
+                                      backgroundColor: theme.colorScheme.primary,
+                                      foregroundColor: theme.colorScheme.onPrimary,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(14),
                                       ),
@@ -255,11 +255,14 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 16),
+                                // Demo accounts: user@izwi.co.zw / Test123!  |  admin@izwi.co.zw / Test123!
                                 Text(
-                                  'Demo accounts: user@izwi.co.zw / Test123!  |  admin@izwi.co.zw / Test123!',
+                                  'Your voice, delivered with clarity.',
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.90),
+                                    color: theme.colorScheme.onSurfaceVariant,
                                     fontSize: 12.5,
+                                    fontStyle: FontStyle.italic,
                                   ),
                                 ),
                               ],

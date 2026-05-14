@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -25,73 +26,110 @@ class RecipientsListScreen extends StatefulWidget {
 }
 
 class _RecipientsListScreenState extends State<RecipientsListScreen> {
+  static const int _pageSize = 10;
+
   final _apiClient = ApiClient(SecureStorageService());
   final List<Contact> _contacts = [];
   final Set<Contact> _selectedContacts = {};
   final _searchController = TextEditingController();
-  List<Contact> _filteredContacts = [];
+  final _scrollController = ScrollController();
+
   bool _selectAll = false;
   bool _isLoading = true;
+  bool _isLoadingMore = false;
+  bool _hasMore = true;
+  int _currentPage = 1;
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
-    _loadContacts();
-    _searchController.addListener(_filterContacts);
+    _loadContacts(reset: true);
+    _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadContacts() async {
-    setState(() => _isLoading = true);
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoadingMore &&
+        _hasMore &&
+        !_isLoading) {
+      _loadContacts();
+    }
+  }
+
+  void _onSearchChanged() {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () {
+      _loadContacts(reset: true);
+    });
+  }
+
+  Future<void> _loadContacts({bool reset = false}) async {
+    if (reset) {
+      setState(() {
+        _currentPage = 1;
+        _hasMore = true;
+        _contacts.clear();
+        _selectedContacts.clear();
+        _selectAll = false;
+        _isLoading = true;
+      });
+    } else {
+      if (!_hasMore || _isLoadingMore) return;
+      setState(() => _isLoadingMore = true);
+    }
+
+    final search = _searchController.text.trim();
+    final params = StringBuffer('page=$_currentPage&pageSize=$_pageSize');
+    if (search.isNotEmpty) params.write('&search=${Uri.encodeComponent(search)}');
+
     try {
-      final response = await _apiClient.get('${AppConstants.recipientsPath}/my');
+      final response = await _apiClient.get(
+        '${AppConstants.recipientsPath}/my?$params',
+      );
 
       if (!mounted) return;
       if (response.statusCode == 200) {
         final list = jsonDecode(response.body) as List<dynamic>;
-        final loadedContacts =
-            list.map((e) {
-              final m = e as Map<String, dynamic>;
-              return Contact(
-                id: m['id'] as String? ?? '',
-                name: m['name'] as String? ?? '',
-                phoneNumber: m['phoneNumber'] as String? ?? '',
-                emailAddress: m['email'] as String? ?? '',
-                address: m['address'] as String?,
-                ageRange: m['ageRange'] as String?,
-                sex: m['gender'] as String?,
-                isPaused: !(m['isActive'] as bool? ?? true),
-              );
-            }).toList();
+        final loaded = list.map((e) {
+          final m = e as Map<String, dynamic>;
+          return Contact(
+            id: m['id'] as String? ?? '',
+            name: m['name'] as String? ?? '',
+            phoneNumber: m['phoneNumber'] as String? ?? '',
+            emailAddress: m['email'] as String? ?? '',
+            address: m['address'] as String?,
+            ageRange: m['ageRange'] as String?,
+            sex: m['gender'] as String?,
+            isPaused: !(m['isActive'] as bool? ?? true),
+          );
+        }).toList();
 
         setState(() {
-          _contacts
-            ..clear()
-            ..addAll(loadedContacts);
-          _filteredContacts = List<Contact>.from(_contacts);
+          _contacts.addAll(loaded);
+          _hasMore = loaded.length == _pageSize;
+          _currentPage++;
         });
       }
     } catch (_) {
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isLoadingMore = false;
+        });
+      }
     }
-  }
-
-  void _filterContacts() {
-    final q = _searchController.text.toLowerCase();
-    setState(() {
-      _filteredContacts = _contacts.where((contact) {
-        return !contact.isPaused &&
-            (contact.name.toLowerCase().contains(q) ||
-                contact.emailAddress.toLowerCase().contains(q) ||
-                contact.phoneNumber.toLowerCase().contains(q));
-      }).toList();
-    });
   }
 
   void _toggleSelection(Contact contact) {
@@ -104,16 +142,32 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
     });
   }
 
-  void _toggleSelectAll() {
-    setState(() {
-      if (_selectAll) {
+  Future<void> _toggleSelectAll() async {
+    if (_selectAll) {
+      setState(() {
         _selectedContacts.clear();
-      } else {
-        _selectedContacts
-          ..clear()
-          ..addAll(_filteredContacts);
-      }
-      _selectAll = !_selectAll;
+        _selectAll = false;
+      });
+      return;
+    }
+
+    // Wait for any in-progress load to settle before proceeding
+    while ((_isLoading || _isLoadingMore) && mounted) {
+      await Future.delayed(const Duration(milliseconds: 50));
+    }
+    if (!mounted) return;
+
+    // Load all remaining pages
+    while (_hasMore && mounted) {
+      await _loadContacts();
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _selectedContacts
+        ..clear()
+        ..addAll(_contacts);
+      _selectAll = true;
     });
   }
 
@@ -124,6 +178,7 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
             name: contact.name,
             phoneNumber: contact.phoneNumber,
             emailAddress: contact.emailAddress,
+            sex: contact.sex,
           ),
         )
         .toList();
@@ -132,9 +187,9 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
 
   void _handlePause(Contact contact) {
     setState(() {
-      contact.isPaused = true;
+      _contacts.remove(contact);
+      _selectedContacts.remove(contact);
     });
-    _filterContacts();
   }
 
   void _addContact() {
@@ -152,7 +207,7 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
       );
 
       if (response.statusCode == 200) {
-        await _loadContacts();
+        await _loadContacts(reset: true);
       } else if (response.statusCode == 409) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -184,8 +239,8 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
                   Expanded(
                     child: Text(
                       widget.isSelectMode ? 'Select Recipients' : 'Recipients',
-                      style: const TextStyle(
-                        color: Color(0xFF5C3CB0),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 26,
                         fontWeight: FontWeight.w800,
                       ),
@@ -206,7 +261,7 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
                 decoration: InputDecoration(
                   hintText: 'Search name, email, phone',
                   filled: true,
-                  fillColor: Colors.white.withValues(alpha: 0.95),
+                  fillColor: Theme.of(context).colorScheme.surface,
                   prefixIcon: const Icon(Icons.search_rounded),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -221,13 +276,17 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.92),
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: CheckboxListTile(
                     value: _selectAll,
                     onChanged: (_) => _toggleSelectAll(),
-                    title: const Text('Select all visible contacts'),
+                    title: Text(
+                      (_isLoading || _isLoadingMore) && !_selectAll
+                          ? 'Loading contacts...'
+                          : 'Select all contacts',
+                    ),
                   ),
                 ),
               ),
@@ -236,50 +295,57 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: _filteredContacts.length,
-                itemBuilder: (context, index) {
-                  final contact = _filteredContacts[index];
-                  return Card(
-                    color: Colors.white.withValues(alpha: 0.94),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: ListTile(
-                      title: Text(
-                        contact.name,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                      subtitle: Text(
-                        '${contact.phoneNumber}\n${contact.emailAddress}',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      trailing: widget.isSelectMode
-                          ? Checkbox(
-                              value: _selectedContacts.contains(contact),
-                              onChanged: (_) => _toggleSelection(contact),
-                            )
-                          : const Icon(Icons.chevron_right_rounded),
-                      onTap: () {
-                        if (!widget.isSelectMode) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ContactDetailsScreen(
-                                contact: contact,
-                                onPause: _handlePause,
-                              ),
-                            ),
+                      controller: _scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: _contacts.length + (_isLoadingMore ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == _contacts.length) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(child: CircularProgressIndicator()),
                           );
-                        } else {
-                          _toggleSelection(contact);
                         }
+                        final contact = _contacts[index];
+                        return Card(
+                          color: Theme.of(context).colorScheme.surface,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              contact.name,
+                              style: const TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            subtitle: Text(
+                              '${contact.phoneNumber}\n${contact.emailAddress}',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: widget.isSelectMode
+                                ? Checkbox(
+                                    value: _selectedContacts.contains(contact),
+                                    onChanged: (_) => _toggleSelection(contact),
+                                  )
+                                : const Icon(Icons.chevron_right_rounded),
+                            onTap: () {
+                              if (!widget.isSelectMode) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ContactDetailsScreen(
+                                      contact: contact,
+                                      onPause: _handlePause,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                _toggleSelection(contact);
+                              }
+                            },
+                          ),
+                        );
                       },
                     ),
-                  );
-                },
-              ),
             ),
             if (widget.isSelectMode)
               Padding(

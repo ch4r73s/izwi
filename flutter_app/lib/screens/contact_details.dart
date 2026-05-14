@@ -117,8 +117,8 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                 Expanded(
                   child: Text(
                     _contact.name,
-                    style: const TextStyle(
-                      color: Color(0xFF5C3CB0),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 26,
                       fontWeight: FontWeight.w800,
                     ),
@@ -147,18 +147,18 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.94),
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Column(
                 children: [
                   CircleAvatar(
                     radius: 56,
-                    backgroundColor: Colors.blueGrey.shade200,
-                    child: const Icon(
+                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                    child: Icon(
                       Icons.person_rounded,
                       size: 56,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 16),

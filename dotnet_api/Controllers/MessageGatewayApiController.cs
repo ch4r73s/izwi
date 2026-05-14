@@ -40,6 +40,7 @@ public class MessageGatewayApiController : ControllerBase
         }
 
         var link = await _dbContext.ClientSmsGateways
+            .Include(csg => csg.SmsGateway)
             .FirstOrDefaultAsync(csg => csg.ClientId == client.Id);
         if (link == null)
         {
@@ -50,18 +51,24 @@ public class MessageGatewayApiController : ControllerBase
             .Where(c => c.SmsGatewayId == link.SmsGatewayId)
             .ToListAsync();
 
+        var provider    = link.SmsGateway.Provider;
+        var smsEndpoint = credentials.FirstOrDefault(c => c.Key == "endpoint")?.Value;
         var smsUsername = credentials.FirstOrDefault(c => c.Key == "username")?.Value;
         var smsPassword = credentials.FirstOrDefault(c => c.Key == "password")?.Value;
+        var apiKey      = credentials.FirstOrDefault(c => c.Key == "api_key")?.Value;
+        var senderId    = credentials.FirstOrDefault(c => c.Key == "sender_id")?.Value;
 
-        if (string.IsNullOrWhiteSpace(smsUsername) || string.IsNullOrWhiteSpace(smsPassword))
-        {
-            return NotFound(new { message = "SMS gateway credentials are incomplete for this client" });
-        }
+        if (string.IsNullOrWhiteSpace(smsEndpoint))
+            return NotFound(new { message = "SMS gateway endpoint is not configured." });
 
         return Ok(new
         {
+            provider,
+            smsEndpoint,
             smsUsername,
-            smsPassword
+            smsPassword,
+            apiKey,
+            senderId,
         });
     }
 }

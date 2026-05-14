@@ -62,6 +62,45 @@ namespace dotnet_api.Migrations
                     b.ToTable("Clients");
                 });
 
+            modelBuilder.Entity("dotnet_api.Models.ClientPayment", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("AmountPaid")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ClientId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("PackageId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PaidAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("SmsAllocated")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SmsConsumed")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("PackageId");
+
+                    b.ToTable("ClientPayments");
+                });
+
             modelBuilder.Entity("dotnet_api.Models.ClientSmsGateway", b =>
                 {
                     b.Property<string>("Id")
@@ -153,9 +192,6 @@ namespace dotnet_api.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<string>("RecipientsSummary")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
@@ -165,6 +201,9 @@ namespace dotnet_api.Migrations
 
                     b.Property<DateTime?>("ReadAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("RecipientsSummary")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ReferenceId")
                         .HasMaxLength(50)
@@ -198,6 +237,37 @@ namespace dotnet_api.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("dotnet_api.Models.NotificationTemplate", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClientId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.ToTable("NotificationTemplates");
                 });
 
             modelBuilder.Entity("dotnet_api.Models.PasswordResetToken", b =>
@@ -241,14 +311,6 @@ namespace dotnet_api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("ClientId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Address")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -256,6 +318,14 @@ namespace dotnet_api.Migrations
                     b.Property<string>("AgeRange")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ClientId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .HasMaxLength(255)
@@ -348,6 +418,60 @@ namespace dotnet_api.Migrations
                     b.ToTable("SmsGatewayCredentials");
                 });
 
+            modelBuilder.Entity("dotnet_api.Models.SmsPackage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int?>("MaxSmsLimit")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("PricePerSms")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SmsPackages");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Up to 5,000 SMS per month",
+                            MaxSmsLimit = 5000,
+                            Name = "Starter",
+                            PricePerSms = 0.0300m
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Up to 10,000 SMS per month",
+                            MaxSmsLimit = 10000,
+                            Name = "Business",
+                            PricePerSms = 0.0250m
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Above 10,000 SMS per month",
+                            Name = "Enterprise",
+                            PricePerSms = 0.0200m
+                        });
+                });
+
             modelBuilder.Entity("dotnet_api.Models.User", b =>
                 {
                     b.Property<string>("Id")
@@ -415,6 +539,25 @@ namespace dotnet_api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("dotnet_api.Models.ClientPayment", b =>
+                {
+                    b.HasOne("dotnet_api.Models.Client", "Client")
+                        .WithMany("Payments")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("dotnet_api.Models.SmsPackage", "Package")
+                        .WithMany("Payments")
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Package");
+                });
+
             modelBuilder.Entity("dotnet_api.Models.ClientSmsGateway", b =>
                 {
                     b.HasOne("dotnet_api.Models.Client", "Client")
@@ -463,6 +606,17 @@ namespace dotnet_api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("dotnet_api.Models.NotificationTemplate", b =>
+                {
+                    b.HasOne("dotnet_api.Models.Client", "Client")
+                        .WithMany("Templates")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
             modelBuilder.Entity("dotnet_api.Models.PasswordResetToken", b =>
                 {
                     b.HasOne("dotnet_api.Models.User", "User")
@@ -500,7 +654,11 @@ namespace dotnet_api.Migrations
                 {
                     b.Navigation("ClientSmsGateway");
 
+                    b.Navigation("Payments");
+
                     b.Navigation("Recipients");
+
+                    b.Navigation("Templates");
                 });
 
             modelBuilder.Entity("dotnet_api.Models.SmsGateway", b =>
@@ -508,6 +666,11 @@ namespace dotnet_api.Migrations
                     b.Navigation("ClientMappings");
 
                     b.Navigation("Credentials");
+                });
+
+            modelBuilder.Entity("dotnet_api.Models.SmsPackage", b =>
+                {
+                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("dotnet_api.Models.User", b =>

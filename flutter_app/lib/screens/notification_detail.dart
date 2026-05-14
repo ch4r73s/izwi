@@ -29,11 +29,11 @@ class NotificationDetailScreen extends StatelessWidget {
                   icon: const Icon(Icons.arrow_back_rounded),
                 ),
                 const SizedBox(width: 10),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Notification Detail',
                     style: TextStyle(
-                      color: Color(0xFF5C3CB0),
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 26,
                       fontWeight: FontWeight.w800,
                     ),
@@ -45,7 +45,7 @@ class NotificationDetailScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.94),
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Column(
@@ -160,7 +160,7 @@ class _DeliverySection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.94),
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -192,12 +192,12 @@ class _DeliverySection extends StatelessWidget {
           ),
           if (allRecipients.isNotEmpty) ...[
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Recipients',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Colors.black54,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 6),
@@ -231,9 +231,9 @@ class _DeliverySection extends StatelessWidget {
                           if (name.isNotEmpty)
                             Text(
                               phone,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11.5,
-                                color: Colors.black54,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           if (!sent && failReason != null)

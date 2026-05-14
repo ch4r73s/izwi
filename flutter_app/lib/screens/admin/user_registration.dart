@@ -64,11 +64,11 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
                   icon: const Icon(Icons.arrow_back_rounded),
                 ),
                 const SizedBox(width: 10),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Register User',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 26,
                       fontWeight: FontWeight.w800,
                     ),
@@ -80,7 +80,7 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.94),
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Form(

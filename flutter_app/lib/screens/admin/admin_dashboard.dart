@@ -86,13 +86,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 Container(
                   width: 44,
                   height: 44,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.notifications_active_rounded,
-                    color: theme.primaryColor,
+                    color: theme.colorScheme.primary,
                     size: 24,
                   ),
                 ),
@@ -103,7 +103,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
-                      color: theme.primaryColor,
+                      color: theme.colorScheme.primary,
                     ),
                   ),
                 ),
@@ -117,14 +117,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             const SizedBox(height: 4),
             Text(
               dashboardSubtitle,
-              style: const TextStyle(
-                color: Color(0xFF3F3F3F),
+              style: TextStyle(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 14.5,
                 fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 18),
-            const _StatsRow(),
+            _StatsRow(),
             const SizedBox(height: 18),
             _ActionTile(
               icon: Icons.group_add_rounded,
@@ -147,10 +147,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               onTap: _openNotifications,
             ),
             const SizedBox(height: 22),
-            const Text(
+            Text(
               'Quick Notes',
               style: TextStyle(
-                color: Color(0xFF3F3F3F),
+                color: theme.colorScheme.onSurface,
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
               ),
@@ -217,25 +217,30 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.92),
+        color: cs.surface,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 24),
+          Icon(icon, size: 24, color: cs.primary),
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: cs.onSurface,
+            ),
           ),
           const SizedBox(height: 3),
           Text(
             title,
-            style: const TextStyle(fontSize: 12.5, color: Colors.black87),
+            style: TextStyle(fontSize: 12.5, color: cs.onSurfaceVariant),
           ),
         ],
       ),
@@ -258,8 +263,9 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Material(
-      color: Colors.white.withValues(alpha: 0.94),
+      color: cs.surface,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
@@ -271,10 +277,10 @@ class _ActionTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withValues(alpha: 0.16),
+                  color: cs.primary.withValues(alpha: 0.16),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: Theme.of(context).primaryColor),
+                child: Icon(icon, color: cs.primary),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -283,23 +289,24 @@ class _ActionTile extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
+                        color: cs.onSurface,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12.5,
-                        color: Colors.black87,
+                        color: cs.onSurfaceVariant,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded),
+              Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
             ],
           ),
         ),
@@ -321,16 +328,17 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.32),
+        color: cs.primaryContainer.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
+        border: Border.all(color: cs.primary.withValues(alpha: 0.22)),
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.white),
+          Icon(icon, color: cs.onPrimaryContainer),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -339,15 +347,15 @@ class _InfoCard extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.95),
+                    color: cs.onPrimaryContainer.withValues(alpha: 0.85),
                     fontSize: 12.5,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: cs.onPrimaryContainer,
                     fontWeight: FontWeight.w700,
                     fontSize: 14.5,
                   ),

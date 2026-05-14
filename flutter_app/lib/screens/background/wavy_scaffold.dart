@@ -15,7 +15,7 @@ class WavyScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: theme.primaryColor,
+      backgroundColor: theme.colorScheme.primary,
       body: Stack(
         children: [
           CustomPaint(

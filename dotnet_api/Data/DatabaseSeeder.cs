@@ -154,6 +154,12 @@ public static class DatabaseSeeder
                     SmsGatewayId = gateway.Id,
                     Key = "password",
                     Value = smsPassword
+                },
+                new SmsGatewayCredential
+                {
+                    SmsGatewayId = gateway.Id,
+                    Key = "endpoint",
+                    Value = "https://bulksms.ebs-online.co.zw/vportal/cnm/vsms/plain"
                 }
             );
             context.ClientSmsGateways.Add(new ClientSmsGateway
@@ -171,34 +177,20 @@ public static class DatabaseSeeder
 
         var usernameCred = creds.FirstOrDefault(c => c.Key == "username");
         var passwordCred = creds.FirstOrDefault(c => c.Key == "password");
+        var endpointCred = creds.FirstOrDefault(c => c.Key == "endpoint");
 
         if (usernameCred == null)
-        {
-            context.SmsGatewayCredentials.Add(new SmsGatewayCredential
-            {
-                SmsGatewayId = mapping.SmsGatewayId,
-                Key = "username",
-                Value = smsUsername
-            });
-        }
+            context.SmsGatewayCredentials.Add(new SmsGatewayCredential { SmsGatewayId = mapping.SmsGatewayId, Key = "username", Value = smsUsername });
         else
-        {
             usernameCred.Value = smsUsername;
-        }
 
         if (passwordCred == null)
-        {
-            context.SmsGatewayCredentials.Add(new SmsGatewayCredential
-            {
-                SmsGatewayId = mapping.SmsGatewayId,
-                Key = "password",
-                Value = smsPassword
-            });
-        }
+            context.SmsGatewayCredentials.Add(new SmsGatewayCredential { SmsGatewayId = mapping.SmsGatewayId, Key = "password", Value = smsPassword });
         else
-        {
             passwordCred.Value = smsPassword;
-        }
+
+        if (endpointCred == null)
+            context.SmsGatewayCredentials.Add(new SmsGatewayCredential { SmsGatewayId = mapping.SmsGatewayId, Key = "endpoint", Value = "https://bulksms.ebs-online.co.zw/vportal/cnm/vsms/plain" });
 
         context.SaveChanges();
     }

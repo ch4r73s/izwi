@@ -111,13 +111,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
             children: [
               Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Notifications',
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF5C3CB0),
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
@@ -199,15 +199,16 @@ class _MetricPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.90),
+        color: cs.surface,
         borderRadius: BorderRadius.circular(999),
       ),
       child: RichText(
         text: TextSpan(
-          style: const TextStyle(color: Colors.black87),
+          style: TextStyle(color: cs.onSurface),
           children: [
             TextSpan(
               text: '$value ',
@@ -234,10 +235,11 @@ class _MonthGroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.94),
+        color: cs.surface,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -245,9 +247,10 @@ class _MonthGroupCard extends StatelessWidget {
         children: [
           Text(
             month,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
+              color: cs.onSurface,
             ),
           ),
           const SizedBox(height: 10),
@@ -280,8 +283,9 @@ class _NotificationTile extends StatelessWidget {
     final dateText = DateFormat('dd MMM yyyy').format(notification.date);
     final timeText = DateFormat('hh:mm a').format(notification.date);
 
+    final cs = Theme.of(context).colorScheme;
     return Material(
-      color: const Color(0xFFF2F6FF),
+      color: cs.surfaceContainerHighest,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
@@ -297,9 +301,10 @@ class _NotificationTile extends StatelessWidget {
                   Expanded(
                     child: Text(
                       notification.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 15,
+                        color: cs.onSurface,
                       ),
                     ),
                   ),
@@ -312,22 +317,22 @@ class _NotificationTile extends StatelessWidget {
                 notification.message,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 13.2),
+                style: TextStyle(fontSize: 13.2, color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
                   Text(
                     dateText,
-                    style: const TextStyle(color: Colors.black54, fontSize: 12),
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
                   ),
                   const SizedBox(width: 8),
-                  const Text('•', style: TextStyle(color: Colors.black45)),
+                  Text('•', style: TextStyle(color: cs.onSurfaceVariant)),
                   const SizedBox(width: 8),
                   Text(
                     timeText,
-                    style: const TextStyle(
-                      color: Colors.black54,
+                    style: TextStyle(
+                      color: cs.onSurfaceVariant,
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
@@ -363,26 +368,31 @@ class _EmptyNotificationsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Center(
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.9),
+          color: cs.surface,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: const Column(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.inbox_rounded, size: 40),
-            SizedBox(height: 10),
+            Icon(Icons.inbox_rounded, size: 40, color: cs.onSurfaceVariant),
+            const SizedBox(height: 10),
             Text(
               'No notifications yet',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+                color: cs.onSurface,
+              ),
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Text(
               'Tap + to create your first notification.',
-              style: TextStyle(fontSize: 13),
+              style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
             ),
           ],
         ),
