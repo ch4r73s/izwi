@@ -1,0 +1,175 @@
+using System.Security.Claims;
+using dotnet_api.Data;
+using dotnet_api.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace dotnet_api.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[Authorize(Roles = "Admin,User,Guest")]
+public class RecipientsController : ControllerBase
+{
+    private readonly ApplicationDbContext _dbContext;
+
+    public RecipientsController(ApplicationDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    [HttpGet("my")]
+    public async Task<IActionResult> GetMyRecipients(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null)
+    {
+        var client = await GetCurrentClientAsync();
+        if (client == null)
+        {
+            return NotFound(new { message = "Client profile not found for current user" });
+        }
+
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var query = _dbContext.Recipients
+            .Where(r => r.ClientId == client.Id && r.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim().ToLower();
+            query = query.Where(r =>
+                r.Name.ToLower().Contains(s) ||
+                (r.Email != null && r.Email.ToLower().Contains(s)) ||
+                r.PhoneNumber.Contains(s));
+        }
+
+        var recipients = await query
+            .OrderBy(r => r.Name)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return Ok(recipients);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddRecipient([FromBody] CreateRecipientRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.PhoneNumber))
+        {
+            return BadRequest(new { message = "Name and phoneNumber are required" });
+        }
+
+        var client = await GetCurrentClientAsync();
+        if (client == null)
+        {
+            return NotFound(new { message = "Client profile not found for current user" });
+        }
+
+        var exists = await _dbContext.Recipients
+            .AnyAsync(r => r.ClientId == client.Id && r.PhoneNumber == request.PhoneNumber.Trim());
+
+        if (exists)
+        {
+            return Conflict(new { message = "A recipient with this phone number already exists." });
+        }
+
+        var recipient = new Recipient
+        {
+            ClientId = client.Id,
+            Name = request.Name.Trim(),
+            PhoneNumber = request.PhoneNumber.Trim(),
+            Email = request.Email?.Trim(),
+            Address = request.Address?.Trim(),
+            AgeRange = request.AgeRange?.Trim(),
+            Gender = request.Gender?.Trim(),
+            IsActive = true
+        };
+
+        await _dbContext.Recipients.AddAsync(recipient);
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(recipient);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateRecipient(string id, [FromBody] UpdateRecipientRequest request)
+    {
+        var client = await GetCurrentClientAsync();
+        if (client == null)
+            return NotFound(new { message = "Client profile not found for current user" });
+
+        var recipient = await _dbContext.Recipients
+            .FirstOrDefaultAsync(r => r.Id == id && r.ClientId == client.Id);
+
+        if (recipient == null)
+            return NotFound(new { message = "Recipient not found" });
+
+        recipient.Name = request.Name.Trim();
+        recipient.PhoneNumber = request.PhoneNumber.Trim();
+        recipient.Email = request.Email?.Trim();
+        recipient.Address = request.Address?.Trim();
+        recipient.AgeRange = request.AgeRange?.Trim();
+        recipient.Gender = request.Gender?.Trim();
+
+        await _dbContext.SaveChangesAsync();
+        return Ok(recipient);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteRecipient(string id)
+    {
+        var client = await GetCurrentClientAsync();
+        if (client == null)
+        {
+            return NotFound(new { message = "Client profile not found for current user" });
+        }
+
+        var recipient = await _dbContext.Recipients
+            .FirstOrDefaultAsync(r => r.Id == id && r.ClientId == client.Id);
+
+        if (recipient == null)
+        {
+            return NotFound(new { message = "Recipient not found" });
+        }
+
+        _dbContext.Recipients.Remove(recipient);
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(new { message = "Recipient deleted successfully" });
+    }
+
+    private async Task<Client?> GetCurrentClientAsync()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return null;
+        }
+
+        return await _dbContext.Clients.FirstOrDefaultAsync(c => c.UserId == userId);
+    }
+}
+
+public class UpdateRecipientRequest
+{
+    public string Name { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public string? Email { get; set; }
+    public string? Address { get; set; }
+    public string? AgeRange { get; set; }
+    public string? Gender { get; set; }
+}
+
+public class CreateRecipientRequest
+{
+    public string Name { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public string? Email { get; set; }
+    public string? Address { get; set; }
+    public string? AgeRange { get; set; }
+    public string? Gender { get; set; }
+}

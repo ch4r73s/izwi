@@ -1,0 +1,1144 @@
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (14ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [MigrationId], [ProductVersion]
+      FROM [__EFMigrationsHistory]
+      ORDER BY [MigrationId];
+info: Microsoft.EntityFrameworkCore.Migrations[20405]
+      No migrations were applied. The database is already up to date.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[@__email_0='?' (Size = 255), @__username_1='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[DisplayName], [u].[Email], [u].[IsActive], [u].[LastLogin], [u].[PasswordHash], [u].[Role], [u].[UpdatedAt], [u].[Username]
+      FROM [Users] AS [u]
+      WHERE [u].[Email] = @__email_0 OR [u].[Username] = @__username_1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@p2='?' (Size = 50), @p0='?' (Size = 255), @p1='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      UPDATE [Users] SET [PasswordHash] = @p0, [UpdatedAt] = @p1
+      OUTPUT 1
+      WHERE [Id] = @p2;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__email_0='?' (Size = 255), @__username_1='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[DisplayName], [u].[Email], [u].[IsActive], [u].[LastLogin], [u].[PasswordHash], [u].[Role], [u].[UpdatedAt], [u].[Username]
+      FROM [Users] AS [u]
+      WHERE [u].[Email] = @__email_0 OR [u].[Username] = @__username_1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p2='?' (Size = 50), @p0='?' (Size = 255), @p1='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      UPDATE [Users] SET [PasswordHash] = @p0, [UpdatedAt] = @p1
+      OUTPUT 1
+      WHERE [Id] = @p2;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__user_Id_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Name], [c].[SmsCostPerMessage], [c].[Ssidn], [c].[UpdatedAt], [c].[UserId]
+      FROM [Clients] AS [c]
+      WHERE [c].[UserId] = @__user_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__clientId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[ClientId], [c].[CreatedAt], [c].[SmsGatewayId]
+      FROM [ClientSmsGateways] AS [c]
+      WHERE [c].[ClientId] = @__clientId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__mapping_SmsGatewayId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[CreatedAt], [s].[Key], [s].[SmsGatewayId], [s].[Value]
+      FROM [SmsGatewayCredentials] AS [s]
+      WHERE [s].[SmsGatewayId] = @__mapping_SmsGatewayId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__standardUser_Id_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Name], [c].[SmsCostPerMessage], [c].[Ssidn], [c].[UpdatedAt], [c].[UserId]
+      FROM [Clients] AS [c]
+      WHERE [c].[UserId] = @__standardUser_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__clientId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Recipients] AS [r]
+              WHERE [r].[ClientId] = @__clientId_0) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 50), @__title_1='?' (Size = 255)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Notifications] AS [n]
+              WHERE [n].[UserId] = @__userId_0 AND [n].[Title] = @__title_1 AND [n].[Type] = N'System') THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 50), @__title_1='?' (Size = 255)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Notifications] AS [n]
+              WHERE [n].[UserId] = @__userId_0 AND [n].[Title] = @__title_1 AND [n].[Type] = N'System') THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Program[0]
+      Database seeding completed successfully.
+warn: Microsoft.AspNetCore.DataProtection.Repositories.EphemeralXmlRepository[50]
+      Using an in-memory repository. Keys will not be persisted to storage.
+warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[59]
+      Neither user profile nor HKLM registry available. Using an ephemeral key repository. Protected data will be unavailable when application exits.
+warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[35]
+      No XML encryptor configured. Key {9f9f6703-2f7c-4adf-8188-6bdc7cd3f5b7} may be persisted to storage in unencrypted form.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CostAmount], [n].[CostCurrency], [n].[CreatedAt], [n].[DeliveredAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[GatewayPayload], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n].[UpdatedAt], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[Status] = N'Pending' AND [n].[GatewayMessageId] IS NULL
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://127.0.0.1:32250
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: h:\root\home\steinovate-002\www\izwi
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CostAmount], [n].[CostCurrency], [n].[CreatedAt], [n].[DeliveredAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[GatewayPayload], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n].[UpdatedAt], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[GatewayMessageId] IS NOT NULL AND [n].[DeliveredAt] IS NULL
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      DeliveryStatusWorker checking 31 sent recipients
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Name], [c].[SmsCostPerMessage], [c].[Ssidn], [c].[UpdatedAt], [c].[UserId]
+      FROM [Clients] AS [c]
+      WHERE [c].[UserId] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__client_Id_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[ClientId], [c].[CreatedAt], [c].[SmsGatewayId], [s].[Id], [s].[CreatedAt], [s].[IsActive], [s].[Name], [s].[Provider]
+      FROM [ClientSmsGateways] AS [c]
+      INNER JOIN [SmsGateways] AS [s] ON [c].[SmsGatewayId] = [s].[Id]
+      WHERE [c].[ClientId] = @__client_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__link_SmsGatewayId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[CreatedAt], [s].[Key], [s].[SmsGatewayId], [s].[Value]
+      FROM [SmsGatewayCredentials] AS [s]
+      WHERE [s].[SmsGatewayId] = @__link_SmsGatewayId_0
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_0d6ccf524339
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_0d6ccf524339
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_0d6ccf524339
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 332.0437ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 342.586ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_7e5f7adf4fe8
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_7e5f7adf4fe8
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_7e5f7adf4fe8
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 92.0694ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.1958ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_32997d59c348
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_32997d59c348
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_32997d59c348
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 97.091ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 97.1909ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_82dcff02835b
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_82dcff02835b
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_82dcff02835b
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.7608ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.8571ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_2fc2acab1edf
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_2fc2acab1edf
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_2fc2acab1edf
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.7557ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.926ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_57543f1ec4c5
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_57543f1ec4c5
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_57543f1ec4c5
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.4914ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.5773ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Recipient +263772645602 DeliveredAt=05/10/2026 12:05:55 (gateway: msg_57543f1ec4c5)
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_f9c8a5f985b6
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_f9c8a5f985b6
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_f9c8a5f985b6
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.4457ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.5177ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_82788bdacee2
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_82788bdacee2
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_82788bdacee2
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 90.9835ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.0552ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_8dd8584171fe
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_8dd8584171fe
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_8dd8584171fe
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.747ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.8296ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_4b6b08ffd697
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_4b6b08ffd697
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_4b6b08ffd697
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.4987ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.6106ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_5c82b72d79a4
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_5c82b72d79a4
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_5c82b72d79a4
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.2783ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.3925ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_f5fa832c7261
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_f5fa832c7261
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_f5fa832c7261
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.6848ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.8165ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_82080dbcc515
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_82080dbcc515
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_82080dbcc515
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.8906ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.0063ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_72e60081f1e9
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_72e60081f1e9
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_72e60081f1e9
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 92.461ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.5813ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_7a8cd80f887b
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_7a8cd80f887b
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_7a8cd80f887b
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 92.0223ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.1196ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_004e6e68a036
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_004e6e68a036
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_004e6e68a036
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.3703ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.4674ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_788438216292
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_788438216292
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_788438216292
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.6934ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.7942ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_becc49b47270
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_becc49b47270
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_becc49b47270
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.784ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.8974ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_5829f7774e45
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_5829f7774e45
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_5829f7774e45
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [MigrationId], [ProductVersion]
+      FROM [__EFMigrationsHistory]
+      ORDER BY [MigrationId];
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.3914ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.4845ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_88cbe6494e05
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_88cbe6494e05
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_88cbe6494e05
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 92.0116ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.1035ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_7f3b793fd57a
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_7f3b793fd57a
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_7f3b793fd57a
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.2383ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.3359ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_d7e7c6ed2f8b
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_d7e7c6ed2f8b
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_d7e7c6ed2f8b
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.4747ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.5518ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_dd4a7c75b510
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_dd4a7c75b510
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_dd4a7c75b510
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.3704ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.4602ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_9148fe74885d
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_9148fe74885d
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_9148fe74885d
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.4267ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.5279ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_30d4bfae4d56
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_30d4bfae4d56
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_30d4bfae4d56
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.6078ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.714ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_38cfaad8568b
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_38cfaad8568b
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_38cfaad8568b
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.6043ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.6919ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_c076774edcbf
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_c076774edcbf
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_c076774edcbf
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.2222ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.3738ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_7a6b2f66c4c6
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_7a6b2f66c4c6
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_7a6b2f66c4c6
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.9219ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.0317ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_ebbcee927130
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_ebbcee927130
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_ebbcee927130
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.1335ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.2268ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_5c0265b0a956
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_5c0265b0a956
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_5c0265b0a956
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.3471ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.423ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_ea09ce778de0
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_ea09ce778de0
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_ea09ce778de0
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.4372ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.511ms - 200
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@p3='?' (Size = 50), @p0='?' (DbType = DateTime2), @p1='?' (Size = 4000), @p2='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      UPDATE [NotificationRecipients] SET [DeliveredAt] = @p0, [GatewayPayload] = @p1, [UpdatedAt] = @p2
+      OUTPUT 1
+      WHERE [Id] = @p3;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [MigrationId], [ProductVersion]
+      FROM [__EFMigrationsHistory]
+      ORDER BY [MigrationId];
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CostAmount], [n].[CostCurrency], [n].[CreatedAt], [n].[DeliveredAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[GatewayPayload], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n].[UpdatedAt], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[Status] = N'Pending' AND [n].[GatewayMessageId] IS NULL
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CostAmount], [n].[CostCurrency], [n].[CreatedAt], [n].[DeliveredAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[GatewayPayload], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n].[UpdatedAt], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[GatewayMessageId] IS NOT NULL AND [n].[DeliveredAt] IS NULL
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      DeliveryStatusWorker checking 30 sent recipients
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Name], [c].[SmsCostPerMessage], [c].[Ssidn], [c].[UpdatedAt], [c].[UserId]
+      FROM [Clients] AS [c]
+      WHERE [c].[UserId] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__client_Id_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[ClientId], [c].[CreatedAt], [c].[SmsGatewayId], [s].[Id], [s].[CreatedAt], [s].[IsActive], [s].[Name], [s].[Provider]
+      FROM [ClientSmsGateways] AS [c]
+      INNER JOIN [SmsGateways] AS [s] ON [c].[SmsGatewayId] = [s].[Id]
+      WHERE [c].[ClientId] = @__client_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__link_SmsGatewayId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[CreatedAt], [s].[Key], [s].[SmsGatewayId], [s].[Value]
+      FROM [SmsGatewayCredentials] AS [s]
+      WHERE [s].[SmsGatewayId] = @__link_SmsGatewayId_0
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_0d6ccf524339
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_0d6ccf524339
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_0d6ccf524339
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 275.3789ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 275.4918ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_7e5f7adf4fe8
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_7e5f7adf4fe8
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_7e5f7adf4fe8
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 92.2026ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.2829ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_32997d59c348
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_32997d59c348
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_32997d59c348
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 152.7558ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 152.8397ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_82dcff02835b
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_82dcff02835b
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_82dcff02835b
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 180.4841ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 180.5807ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_2fc2acab1edf
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_2fc2acab1edf
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_2fc2acab1edf
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 92.6735ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.7809ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_f9c8a5f985b6
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_f9c8a5f985b6
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_f9c8a5f985b6
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.6951ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.7726ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_82788bdacee2
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_82788bdacee2
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_82788bdacee2
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 93.0229ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 93.1009ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_8dd8584171fe
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_8dd8584171fe
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_8dd8584171fe
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.4739ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.5521ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_4b6b08ffd697
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_4b6b08ffd697
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_4b6b08ffd697
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.7658ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.821ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_5c82b72d79a4
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_5c82b72d79a4
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_5c82b72d79a4
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.5297ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.5916ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_f5fa832c7261
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_f5fa832c7261
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_f5fa832c7261
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 92.5198ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.5814ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_82080dbcc515
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_82080dbcc515
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_82080dbcc515
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.6206ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.6994ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_72e60081f1e9
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_72e60081f1e9
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_72e60081f1e9
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.1775ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.2342ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_7a8cd80f887b
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_7a8cd80f887b
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_7a8cd80f887b
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 90.921ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 90.9796ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_004e6e68a036
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_004e6e68a036
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_004e6e68a036
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 90.9005ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 90.9638ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_788438216292
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_788438216292
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_788438216292
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 90.5564ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 90.6195ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_becc49b47270
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_becc49b47270
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_becc49b47270
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 90.8434ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 90.9054ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_5829f7774e45
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_5829f7774e45
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_5829f7774e45
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 90.8971ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 90.9581ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Recipient +263783674557 DeliveredAt=05/10/2026 12:10:32 (gateway: msg_5829f7774e45)
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_88cbe6494e05
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_88cbe6494e05
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_88cbe6494e05
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 90.976ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.0378ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_7f3b793fd57a
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_7f3b793fd57a
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_7f3b793fd57a
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 90.8854ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 90.9452ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_d7e7c6ed2f8b
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_d7e7c6ed2f8b
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_d7e7c6ed2f8b
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.111ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.1549ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_dd4a7c75b510
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_dd4a7c75b510
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_dd4a7c75b510
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.6808ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.7253ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_9148fe74885d
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_9148fe74885d
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_9148fe74885d
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 92.0923ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.1338ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_30d4bfae4d56
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_30d4bfae4d56
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_30d4bfae4d56
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 92.1354ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.207ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_38cfaad8568b
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_38cfaad8568b
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_38cfaad8568b
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 93.1364ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 93.2036ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_c076774edcbf
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_c076774edcbf
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_c076774edcbf
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 92.0598ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.1194ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_7a6b2f66c4c6
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_7a6b2f66c4c6
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_7a6b2f66c4c6
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.6539ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.7157ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_ebbcee927130
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_ebbcee927130
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_ebbcee927130
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 92.1276ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.1936ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_5c0265b0a956
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_5c0265b0a956
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_5c0265b0a956
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.2852ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.5257ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_ea09ce778de0
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_ea09ce778de0
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_ea09ce778de0
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.156ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.2198ms - 200
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@p3='?' (Size = 50), @p0='?' (DbType = DateTime2), @p1='?' (Size = 4000), @p2='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      UPDATE [NotificationRecipients] SET [DeliveredAt] = @p0, [GatewayPayload] = @p1, [UpdatedAt] = @p2
+      OUTPUT 1
+      WHERE [Id] = @p3;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CostAmount], [n].[CostCurrency], [n].[CreatedAt], [n].[DeliveredAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[GatewayPayload], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n].[UpdatedAt], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[Status] = N'Pending' AND [n].[GatewayMessageId] IS NULL
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CostAmount], [n].[CostCurrency], [n].[CreatedAt], [n].[DeliveredAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[GatewayPayload], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n].[UpdatedAt], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[GatewayMessageId] IS NOT NULL AND [n].[DeliveredAt] IS NULL
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      DeliveryStatusWorker checking 29 sent recipients
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Name], [c].[SmsCostPerMessage], [c].[Ssidn], [c].[UpdatedAt], [c].[UserId]
+      FROM [Clients] AS [c]
+      WHERE [c].[UserId] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__client_Id_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[ClientId], [c].[CreatedAt], [c].[SmsGatewayId], [s].[Id], [s].[CreatedAt], [s].[IsActive], [s].[Name], [s].[Provider]
+      FROM [ClientSmsGateways] AS [c]
+      INNER JOIN [SmsGateways] AS [s] ON [c].[SmsGatewayId] = [s].[Id]
+      WHERE [c].[ClientId] = @__client_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__link_SmsGatewayId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[CreatedAt], [s].[Key], [s].[SmsGatewayId], [s].[Value]
+      FROM [SmsGatewayCredentials] AS [s]
+      WHERE [s].[SmsGatewayId] = @__link_SmsGatewayId_0
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_0d6ccf524339
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_0d6ccf524339
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_0d6ccf524339
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 274.6022ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 274.6748ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_7e5f7adf4fe8
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_7e5f7adf4fe8
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_7e5f7adf4fe8
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.4771ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.5384ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_32997d59c348
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_32997d59c348
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_32997d59c348
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 90.6996ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 90.7745ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_82dcff02835b
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_82dcff02835b
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_82dcff02835b
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 92.2892ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.3638ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_2fc2acab1edf
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_2fc2acab1edf
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_2fc2acab1edf
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.3955ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.4729ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_f9c8a5f985b6
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_f9c8a5f985b6
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_f9c8a5f985b6
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.5742ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.6304ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_82788bdacee2
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_82788bdacee2
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_82788bdacee2
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.7076ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.7592ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_8dd8584171fe
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_8dd8584171fe
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_8dd8584171fe
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.0339ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.0728ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_4b6b08ffd697
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_4b6b08ffd697
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_4b6b08ffd697
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.2896ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.3469ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_5c82b72d79a4
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_5c82b72d79a4
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_5c82b72d79a4
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.6044ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.6492ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_f5fa832c7261
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_f5fa832c7261
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_f5fa832c7261
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.1976ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.2482ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_82080dbcc515
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_82080dbcc515
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_82080dbcc515
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.7163ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.7677ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_72e60081f1e9
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_72e60081f1e9
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_72e60081f1e9
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.7312ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.7764ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_7a8cd80f887b
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_7a8cd80f887b
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_7a8cd80f887b
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.3215ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.3642ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_004e6e68a036
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_004e6e68a036
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_004e6e68a036
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.3015ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.363ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_788438216292
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_788438216292
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_788438216292
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.2267ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.2723ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_becc49b47270
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_becc49b47270
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_becc49b47270
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 90.87ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 90.9153ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_88cbe6494e05
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_88cbe6494e05
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_88cbe6494e05
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 90.6295ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 90.6857ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_7f3b793fd57a
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_7f3b793fd57a
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_7f3b793fd57a
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.2694ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.3267ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_d7e7c6ed2f8b
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_d7e7c6ed2f8b
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_d7e7c6ed2f8b
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.0029ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.0617ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_dd4a7c75b510
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_dd4a7c75b510
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_dd4a7c75b510
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.0661ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.1158ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_9148fe74885d
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_9148fe74885d
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_9148fe74885d
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.2678ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.3159ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_30d4bfae4d56
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_30d4bfae4d56
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_30d4bfae4d56
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 92.6617ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.7104ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_38cfaad8568b
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_38cfaad8568b
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_38cfaad8568b
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.9756ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 92.0207ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_c076774edcbf
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_c076774edcbf
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_c076774edcbf
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.4717ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.4996ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_7a6b2f66c4c6
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_7a6b2f66c4c6
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_7a6b2f66c4c6
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.1431ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.1789ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_ebbcee927130
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_ebbcee927130
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_ebbcee927130
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 90.8734ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 90.91ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_5c0265b0a956
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_5c0265b0a956
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_5c0265b0a956
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.1611ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.1936ms - 200
+info: dotnet_api.Services.DeliveryStatusWorker[0]
+      Phase2 GET https://tumirai.co.zw/v1/messages/msg_ea09ce778de0
+info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
+      Start processing HTTP request GET https://tumirai.co.zw/v1/messages/msg_ea09ce778de0
+info: System.Net.Http.HttpClient.Default.ClientHandler[100]
+      Sending HTTP request GET https://tumirai.co.zw/v1/messages/msg_ea09ce778de0
+info: System.Net.Http.HttpClient.Default.ClientHandler[101]
+      Received HTTP response headers after 91.1532ms - 200
+info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
+      End processing HTTP request after 91.1815ms - 200
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...

@@ -1,0 +1,26 @@
+# Flutter
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+
+# Android
+**/android/.gradle/
+**/.gradle/
+**/.gradle-home/
+
+# iOS
+ios/Pods/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Mac
+.DS_Store
+
+# Visual Studio
+dotnet_api/.vs/

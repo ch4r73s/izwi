@@ -1,0 +1,154 @@
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [MigrationId], [ProductVersion]
+      FROM [__EFMigrationsHistory]
+      ORDER BY [MigrationId];
+info: Microsoft.EntityFrameworkCore.Migrations[20405]
+      No migrations were applied. The database is already up to date.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (20ms) [Parameters=[@__email_0='?' (Size = 255), @__username_1='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[DisplayName], [u].[Email], [u].[IsActive], [u].[LastLogin], [u].[PasswordHash], [u].[Role], [u].[UpdatedAt], [u].[Username]
+      FROM [Users] AS [u]
+      WHERE [u].[Email] = @__email_0 OR [u].[Username] = @__username_1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[@p0='?' (Size = 50), @p1='?' (DbType = DateTime2), @p2='?' (Size = 120), @p3='?' (Size = 255), @p4='?' (DbType = Boolean), @p5='?' (DbType = DateTime2), @p6='?' (Size = 255), @p7='?' (Size = 20), @p8='?' (DbType = DateTime2), @p9='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [Users] ([Id], [CreatedAt], [DisplayName], [Email], [IsActive], [LastLogin], [PasswordHash], [Role], [UpdatedAt], [Username])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (23ms) [Parameters=[@__email_0='?' (Size = 255), @__username_1='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[DisplayName], [u].[Email], [u].[IsActive], [u].[LastLogin], [u].[PasswordHash], [u].[Role], [u].[UpdatedAt], [u].[Username]
+      FROM [Users] AS [u]
+      WHERE [u].[Email] = @__email_0 OR [u].[Username] = @__username_1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[@p0='?' (Size = 50), @p1='?' (DbType = DateTime2), @p2='?' (Size = 120), @p3='?' (Size = 255), @p4='?' (DbType = Boolean), @p5='?' (DbType = DateTime2), @p6='?' (Size = 255), @p7='?' (Size = 20), @p8='?' (DbType = DateTime2), @p9='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [Users] ([Id], [CreatedAt], [DisplayName], [Email], [IsActive], [LastLogin], [PasswordHash], [Role], [UpdatedAt], [Username])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__user_Id_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Name], [c].[SmsCostPerMessage], [c].[Ssidn], [c].[UpdatedAt], [c].[UserId]
+      FROM [Clients] AS [c]
+      WHERE [c].[UserId] = @__user_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@p0='?' (Size = 50), @p1='?' (DbType = DateTime2), @p2='?' (Size = 120), @p3='?' (Precision = 18) (Scale = 4) (DbType = Decimal), @p4='?' (Size = 50), @p5='?' (DbType = DateTime2), @p6='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [Clients] ([Id], [CreatedAt], [Name], [SmsCostPerMessage], [Ssidn], [UpdatedAt], [UserId])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__clientId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[ClientId], [c].[CreatedAt], [c].[SmsGatewayId]
+      FROM [ClientSmsGateways] AS [c]
+      WHERE [c].[ClientId] = @__clientId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@p0='?' (Size = 50), @p1='?' (DbType = DateTime2), @p2='?' (DbType = Boolean), @p3='?' (Size = 120), @p4='?' (Size = 60)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [SmsGateways] ([Id], [CreatedAt], [IsActive], [Name], [Provider])
+      VALUES (@p0, @p1, @p2, @p3, @p4);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@p0='?' (Size = 50), @p1='?' (Size = 50), @p2='?' (DbType = DateTime2), @p3='?' (Size = 50), @p4='?' (Size = 50), @p5='?' (DbType = DateTime2), @p6='?' (Size = 60), @p7='?' (Size = 50), @p8='?' (Size = 255), @p9='?' (Size = 50), @p10='?' (DbType = DateTime2), @p11='?' (Size = 60), @p12='?' (Size = 50), @p13='?' (Size = 255)], CommandType='Text', CommandTimeout='30']
+      SET NOCOUNT ON;
+      INSERT INTO [ClientSmsGateways] ([Id], [ClientId], [CreatedAt], [SmsGatewayId])
+      VALUES (@p0, @p1, @p2, @p3);
+      INSERT INTO [SmsGatewayCredentials] ([Id], [CreatedAt], [Key], [SmsGatewayId], [Value])
+      VALUES (@p4, @p5, @p6, @p7, @p8),
+      (@p9, @p10, @p11, @p12, @p13);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@__standardUser_Id_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Name], [c].[SmsCostPerMessage], [c].[Ssidn], [c].[UpdatedAt], [c].[UserId]
+      FROM [Clients] AS [c]
+      WHERE [c].[UserId] = @__standardUser_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__clientId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Recipients] AS [r]
+              WHERE [r].[ClientId] = @__clientId_0) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@p0='?' (Size = 50), @p1='?' (Size = 255), @p2='?' (Size = 20), @p3='?' (Size = 50), @p4='?' (DbType = DateTime2), @p5='?' (Size = 255), @p6='?' (Size = 20), @p7='?' (DbType = Boolean), @p8='?' (Size = 120), @p9='?' (Size = 25), @p10='?' (Size = 50), @p11='?' (Size = 255), @p12='?' (Size = 20), @p13='?' (Size = 50), @p14='?' (DbType = DateTime2), @p15='?' (Size = 255), @p16='?' (Size = 20), @p17='?' (DbType = Boolean), @p18='?' (Size = 120), @p19='?' (Size = 25), @p20='?' (Size = 50), @p21='?' (Size = 255), @p22='?' (Size = 20), @p23='?' (Size = 50), @p24='?' (DbType = DateTime2), @p25='?' (Size = 255), @p26='?' (Size = 20), @p27='?' (DbType = Boolean), @p28='?' (Size = 120), @p29='?' (Size = 25), @p30='?' (Size = 50), @p31='?' (Size = 255), @p32='?' (Size = 20), @p33='?' (Size = 50), @p34='?' (DbType = DateTime2), @p35='?' (Size = 255), @p36='?' (Size = 20), @p37='?' (DbType = Boolean), @p38='?' (Size = 120), @p39='?' (Size = 25)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [Recipients] ([Id], [Address], [AgeRange], [ClientId], [CreatedAt], [Email], [Gender], [IsActive], [Name], [PhoneNumber])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9),
+      (@p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19),
+      (@p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28, @p29),
+      (@p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37, @p38, @p39);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__userId_0='?' (Size = 50), @__title_1='?' (Size = 255)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Notifications] AS [n]
+              WHERE [n].[UserId] = @__userId_0 AND [n].[Title] = @__title_1 AND [n].[Type] = N'System') THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@p0='?' (Size = 50), @p1='?' (DbType = DateTime2), @p2='?' (Size = 50), @p3='?' (Size = 20), @p4='?' (Size = 1000), @p5='?' (DbType = Boolean), @p6='?' (Size = 4000), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (Size = 50), @p10='?' (Size = 255), @p11='?' (Size = 50), @p12='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [Notifications] ([Id], [CreatedAt], [CreatedByUserId], [DeliveryStatus], [ErrorDetails], [IsRead], [Message], [ReadAt], [RecipientsSummary], [ReferenceId], [Title], [Type], [UserId])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (21ms) [Parameters=[@__userId_0='?' (Size = 50), @__title_1='?' (Size = 255)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Notifications] AS [n]
+              WHERE [n].[UserId] = @__userId_0 AND [n].[Title] = @__title_1 AND [n].[Type] = N'System') THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p0='?' (Size = 50), @p1='?' (DbType = DateTime2), @p2='?' (Size = 50), @p3='?' (Size = 20), @p4='?' (Size = 1000), @p5='?' (DbType = Boolean), @p6='?' (Size = 4000), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (Size = 50), @p10='?' (Size = 255), @p11='?' (Size = 50), @p12='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [Notifications] ([Id], [CreatedAt], [CreatedByUserId], [DeliveryStatus], [ErrorDetails], [IsRead], [Message], [ReadAt], [RecipientsSummary], [ReferenceId], [Title], [Type], [UserId])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12);
+info: Program[0]
+      Database seeding completed successfully.
+warn: Microsoft.AspNetCore.DataProtection.Repositories.EphemeralXmlRepository[50]
+      Using an in-memory repository. Keys will not be persisted to storage.
+warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[59]
+      Neither user profile nor HKLM registry available. Using an ephemeral key repository. Protected data will be unavailable when application exits.
+warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[35]
+      No XML encryptor configured. Key {1c7f0c67-3488-4a2e-b5ab-6e2616278922} may be persisted to storage in unencrypted form.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://127.0.0.1:12931
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: h:\root\home\steinovate-002\www\izwi
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [MigrationId], [ProductVersion]
+      FROM [__EFMigrationsHistory]
+      ORDER BY [MigrationId];

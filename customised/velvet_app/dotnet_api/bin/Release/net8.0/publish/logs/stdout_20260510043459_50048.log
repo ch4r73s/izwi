@@ -1,0 +1,148 @@
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [MigrationId], [ProductVersion]
+      FROM [__EFMigrationsHistory]
+      ORDER BY [MigrationId];
+info: Microsoft.EntityFrameworkCore.Migrations[20405]
+      No migrations were applied. The database is already up to date.
+warn: Microsoft.AspNetCore.DataProtection.Repositories.EphemeralXmlRepository[50]
+      Using an in-memory repository. Keys will not be persisted to storage.
+warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[59]
+      Neither user profile nor HKLM registry available. Using an ephemeral key repository. Protected data will be unavailable when application exits.
+warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[35]
+      No XML encryptor configured. Key {5a972599-6fc0-4a28-9db9-e5fb85809dd4} may be persisted to storage in unencrypted form.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CreatedAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[GatewayMessageId] IS NOT NULL AND [n].[Status] = N'Sent'
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://127.0.0.1:44261
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: h:\root\home\steinovate-002\www\izwi
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [MigrationId], [ProductVersion]
+      FROM [__EFMigrationsHistory]
+      ORDER BY [MigrationId];
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@__userId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[DisplayName], [u].[Email], [u].[IsActive], [u].[LastLogin], [u].[PasswordHash], [u].[Role], [u].[UpdatedAt], [u].[Username]
+      FROM [Users] AS [u]
+      WHERE [u].[Id] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@__senderUserId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CreatedAt], [n].[CreatedByUserId], [n].[DeliveryStatus], [n].[ErrorDetails], [n].[IsRead], [n].[Message], [n].[ReadAt], [n].[RecipientsSummary], [n].[ReferenceId], [n].[Title], [n].[Type], [n].[UserId], [n0].[Id], [n0].[CreatedAt], [n0].[ErrorReason], [n0].[GatewayMessageId], [n0].[Name], [n0].[NotificationId], [n0].[PhoneNumber], [n0].[Status]
+      FROM [Notifications] AS [n]
+      LEFT JOIN [NotificationRecipients] AS [n0] ON [n].[Id] = [n0].[NotificationId]
+      WHERE [n].[CreatedByUserId] = @__senderUserId_0
+      ORDER BY [n].[CreatedAt] DESC, [n].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CreatedAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[GatewayMessageId] IS NOT NULL AND [n].[Status] = N'Sent'
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__senderUserId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CreatedAt], [n].[CreatedByUserId], [n].[DeliveryStatus], [n].[ErrorDetails], [n].[IsRead], [n].[Message], [n].[ReadAt], [n].[RecipientsSummary], [n].[ReferenceId], [n].[Title], [n].[Type], [n].[UserId], [n0].[Id], [n0].[CreatedAt], [n0].[ErrorReason], [n0].[GatewayMessageId], [n0].[Name], [n0].[NotificationId], [n0].[PhoneNumber], [n0].[Status]
+      FROM [Notifications] AS [n]
+      LEFT JOIN [NotificationRecipients] AS [n0] ON [n].[Id] = [n0].[NotificationId]
+      WHERE [n].[CreatedByUserId] = @__senderUserId_0
+      ORDER BY [n].[CreatedAt] DESC, [n].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CreatedAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[GatewayMessageId] IS NOT NULL AND [n].[Status] = N'Sent'
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CreatedAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[GatewayMessageId] IS NOT NULL AND [n].[Status] = N'Sent'
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CreatedAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[GatewayMessageId] IS NOT NULL AND [n].[Status] = N'Sent'
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CreatedAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[GatewayMessageId] IS NOT NULL AND [n].[Status] = N'Sent'
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [MigrationId], [ProductVersion]
+      FROM [__EFMigrationsHistory]
+      ORDER BY [MigrationId];
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__userId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[DisplayName], [u].[Email], [u].[IsActive], [u].[LastLogin], [u].[PasswordHash], [u].[Role], [u].[UpdatedAt], [u].[Username]
+      FROM [Users] AS [u]
+      WHERE [u].[Id] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@__senderUserId_0='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CreatedAt], [n].[CreatedByUserId], [n].[DeliveryStatus], [n].[ErrorDetails], [n].[IsRead], [n].[Message], [n].[ReadAt], [n].[RecipientsSummary], [n].[ReferenceId], [n].[Title], [n].[Type], [n].[UserId], [n0].[Id], [n0].[CreatedAt], [n0].[ErrorReason], [n0].[GatewayMessageId], [n0].[Name], [n0].[NotificationId], [n0].[PhoneNumber], [n0].[Status]
+      FROM [Notifications] AS [n]
+      LEFT JOIN [NotificationRecipients] AS [n0] ON [n].[Id] = [n0].[NotificationId]
+      WHERE [n].[CreatedByUserId] = @__senderUserId_0
+      ORDER BY [n].[CreatedAt] DESC, [n].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CreatedAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[GatewayMessageId] IS NOT NULL AND [n].[Status] = N'Sent'
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CreatedAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[GatewayMessageId] IS NOT NULL AND [n].[Status] = N'Sent'
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [n].[Id], [n].[CreatedAt], [n].[ErrorReason], [n].[GatewayMessageId], [n].[Name], [n].[NotificationId], [n].[PhoneNumber], [n].[Status], [n0].[Id], [n0].[CreatedAt], [n0].[CreatedByUserId], [n0].[DeliveryStatus], [n0].[ErrorDetails], [n0].[IsRead], [n0].[Message], [n0].[ReadAt], [n0].[RecipientsSummary], [n0].[ReferenceId], [n0].[Title], [n0].[Type], [n0].[UserId]
+      FROM [NotificationRecipients] AS [n]
+      INNER JOIN [Notifications] AS [n0] ON [n].[NotificationId] = [n0].[Id]
+      WHERE [n].[GatewayMessageId] IS NOT NULL AND [n].[Status] = N'Sent'
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...

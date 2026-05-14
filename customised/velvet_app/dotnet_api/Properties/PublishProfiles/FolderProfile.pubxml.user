@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- https://go.microsoft.com/fwlink/?LinkID=208121. -->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>C:\Users\EMF Dev\source\side-repos\FlutterProjects\izwi_notifications_app\dotnet_api\bin\Release\net8.0\publish\</_PublishTargetUrl>
+    <History>True|2026-05-06T20:07:27.9795289Z||;True|2026-05-01T00:23:43.0070499+02:00||;True|2026-04-30T23:35:22.3139767+02:00||;True|2026-04-30T14:51:26.4823982+02:00||;True|2026-04-29T14:32:28.1827580+02:00||;True|2026-04-29T11:40:10.3209468+02:00||;True|2026-04-24T12:26:26.1415170+02:00||;True|2026-04-24T12:19:56.9962423+02:00||;True|2026-04-24T12:13:26.9210923+02:00||;True|2026-04-24T12:05:50.8408283+02:00||;True|2026-04-24T11:35:19.1755058+02:00||;True|2026-04-24T11:15:43.8245016+02:00||;True|2026-04-24T11:07:30.6946348+02:00||;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>
