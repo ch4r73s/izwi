@@ -23,7 +23,8 @@ public class RecipientsController : ControllerBase
     public async Task<IActionResult> GetMyRecipients(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string? search = null)
+        [FromQuery] string? search = null,
+        [FromQuery] string? district = null)
     {
         var client = await GetCurrentClientAsync();
         if (client == null)
@@ -46,6 +47,12 @@ public class RecipientsController : ControllerBase
                 r.PhoneNumber.Contains(s));
         }
 
+        if (!string.IsNullOrWhiteSpace(district))
+        {
+            var d = district.Trim().ToLower();
+            query = query.Where(r => r.District != null && r.District.ToLower() == d);
+        }
+
         var recipients = await query
             .OrderBy(r => r.Name)
             .Skip((page - 1) * pageSize)
@@ -53,6 +60,25 @@ public class RecipientsController : ControllerBase
             .ToListAsync();
 
         return Ok(recipients);
+    }
+
+    [HttpGet("districts")]
+    public async Task<IActionResult> GetMyDistricts()
+    {
+        var client = await GetCurrentClientAsync();
+        if (client == null)
+        {
+            return NotFound(new { message = "Client profile not found for current user" });
+        }
+
+        var districts = await _dbContext.Recipients
+            .Where(r => r.ClientId == client.Id && r.IsActive && r.District != null && r.District != "")
+            .Select(r => r.District!)
+            .Distinct()
+            .OrderBy(d => d)
+            .ToListAsync();
+
+        return Ok(districts);
     }
 
     [HttpPost]
@@ -86,6 +112,7 @@ public class RecipientsController : ControllerBase
             Address = request.Address?.Trim(),
             AgeRange = request.AgeRange?.Trim(),
             Gender = request.Gender?.Trim(),
+            District = request.District?.Trim(),
             IsActive = true
         };
 
@@ -114,6 +141,12 @@ public class RecipientsController : ControllerBase
         recipient.Address = request.Address?.Trim();
         recipient.AgeRange = request.AgeRange?.Trim();
         recipient.Gender = request.Gender?.Trim();
+        recipient.District = request.District?.Trim();
+
+        if (request.IsActive.HasValue)
+        {
+            recipient.IsActive = request.IsActive.Value;
+        }
 
         await _dbContext.SaveChangesAsync();
         return Ok(recipient);
@@ -162,6 +195,8 @@ public class UpdateRecipientRequest
     public string? Address { get; set; }
     public string? AgeRange { get; set; }
     public string? Gender { get; set; }
+    public string? District { get; set; }
+    public bool? IsActive { get; set; }
 }
 
 public class CreateRecipientRequest
@@ -172,4 +207,5 @@ public class CreateRecipientRequest
     public string? Address { get; set; }
     public string? AgeRange { get; set; }
     public string? Gender { get; set; }
+    public string? District { get; set; }
 }

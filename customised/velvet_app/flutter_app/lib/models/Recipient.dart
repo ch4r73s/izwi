@@ -4,6 +4,7 @@ class Recipient {
   final String phoneNumber;
   final String emailAddress;
   final String? sex;
+  final String? district;
 
   const Recipient({
     this.id = '',
@@ -11,6 +12,7 @@ class Recipient {
     required this.phoneNumber,
     required this.emailAddress,
     this.sex,
+    this.district,
   });
 
   factory Recipient.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class Recipient {
       phoneNumber: json['phoneNumber'] as String? ?? '',
       emailAddress: json['email'] as String? ?? '',
       sex: json['gender'] as String?,
+      district: json['district'] as String?,
     );
   }
 }

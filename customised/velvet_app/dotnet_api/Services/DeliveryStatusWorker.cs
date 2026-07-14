@@ -95,7 +95,7 @@ public class DeliveryStatusWorker : BackgroundService
 
             foreach (var recipient in group)
             {
-                var resolvedMessage = ResolveTemplate(recipient.Notification!.Message, recipient.Name);
+                var resolvedMessage = SmsBillingHelper.ResolveTemplate(recipient.Notification!.Message, recipient.Name);
                 try
                 {
                     string? gatewayId = null;
@@ -150,7 +150,7 @@ public class DeliveryStatusWorker : BackgroundService
 
                     if (success)
                     {
-                        var units = (int)Math.Ceiling(resolvedMessage.Length / 160.0);
+                        var units = SmsBillingHelper.ComputeUnits(resolvedMessage);
                         var remaining = units;
                         foreach (var payment in clientPayments)
                         {
@@ -326,14 +326,4 @@ public class DeliveryStatusWorker : BackgroundService
         await db.SaveChangesAsync(ct);
     }
 
-    private static string ResolveTemplate(string template, string? recipientName)
-    {
-        var name = recipientName ?? "";
-
-        return template
-            .Replace("[Name]",      name, StringComparison.OrdinalIgnoreCase)
-            .Replace("[FirstName]", name, StringComparison.OrdinalIgnoreCase)
-            .Replace("{Name}",      name, StringComparison.OrdinalIgnoreCase)
-            .Replace("{FirstName}", name, StringComparison.OrdinalIgnoreCase);
-    }
 }

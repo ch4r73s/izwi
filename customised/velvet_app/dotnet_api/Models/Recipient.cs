@@ -34,6 +34,9 @@ public class Recipient
     [MaxLength(20)]
     public string? Gender { get; set; }
 
+    [MaxLength(100)]
+    public string? District { get; set; }
+
     public bool IsActive { get; set; } = true;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

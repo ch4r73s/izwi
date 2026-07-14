@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using dotnet_api.Data;
+using dotnet_api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -72,20 +73,32 @@ public class BillingController : ControllerBase
                         n.CreatedAt >= startDate &&
                         n.CreatedAt <= endDate &&
                         n.Type != "System")
+            .Include(n => n.Recipients)
             .OrderBy(n => n.CreatedAt)
-            .Select(n => new
+            .ToListAsync();
+
+        var items = notifications.Select(n =>
+        {
+            var smsUnits = n.Recipients
+                .Where(r => r.Status is "Sent" or "Delivered")
+                .Sum(r => SmsBillingHelper.ComputeUnits(SmsBillingHelper.ResolveTemplate(n.Message, r.Name)));
+
+            return new
             {
                 n.Id,
                 n.Title,
                 n.Message,
                 n.Type,
                 n.DeliveryStatus,
-                n.CreatedAt
-            })
-            .ToListAsync();
+                n.CreatedAt,
+                smsUnits,
+                cost = smsUnits * client.SmsCostPerMessage
+            };
+        }).ToList();
 
         var totalMessages = notifications.Count;
-        var totalCost = totalMessages * client.SmsCostPerMessage;
+        var totalSmsUnits = items.Sum(i => i.smsUnits);
+        var totalCost = totalSmsUnits * client.SmsCostPerMessage;
 
         var invoice = new
         {
@@ -102,10 +115,11 @@ public class BillingController : ControllerBase
             totals = new
             {
                 totalMessages,
+                totalSmsUnits,
                 costPerSms = client.SmsCostPerMessage,
                 totalCost
             },
-            items = notifications
+            items
         };
 
         return Ok(invoice);
@@ -125,7 +139,16 @@ public class BillingController : ControllerBase
         var failedCount = await _dbContext.Notifications
             .CountAsync(n => n.CreatedByUserId == userId && (n.DeliveryStatus == "Failed" || n.Type == "Error"));
 
-        var totalCost = sentCount * client.SmsCostPerMessage;
+        var notifications = await _dbContext.Notifications
+            .Where(n => n.CreatedByUserId == userId && n.Type != "System")
+            .Include(n => n.Recipients)
+            .ToListAsync();
+
+        var totalSmsUnits = notifications.Sum(n => n.Recipients
+            .Where(r => r.Status is "Sent" or "Delivered")
+            .Sum(r => SmsBillingHelper.ComputeUnits(SmsBillingHelper.ResolveTemplate(n.Message, r.Name))));
+
+        var totalCost = totalSmsUnits * client.SmsCostPerMessage;
 
         return new
         {
@@ -139,6 +162,7 @@ public class BillingController : ControllerBase
             {
                 totalMessages = sentCount,
                 failedMessages = failedCount,
+                totalSmsUnits,
                 costPerSms = client.SmsCostPerMessage,
                 totalCost
             }

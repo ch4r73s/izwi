@@ -24,3 +24,7 @@ ios/Pods/
 
 # Visual Studio
 dotnet_api/.vs/
+
+# Laravel deployment package
+laravel_web-deploy/
+laravel_web-deploy.zip

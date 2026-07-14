@@ -3,13 +3,15 @@ import 'package:outgoing_notifications/models/Contact.dart';
 
 Future<void> showAddContactDialog(
   BuildContext context,
-  Function(Contact) onAddContact,
-) {
+  Function(Contact) onAddContact, {
+  List<String> districtSuggestions = const [],
+}) {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
   final emailController = TextEditingController();
   final addressController = TextEditingController();
+  TextEditingController? districtController;
   String? ageRange;
   String? sex;
 
@@ -88,6 +90,28 @@ Future<void> showAddContactDialog(
                         ],
                         onChanged: (v) => setState(() => sex = v),
                       ),
+                      const SizedBox(height: 10),
+                      Autocomplete<String>(
+                        initialValue: const TextEditingValue(text: 'Harare'),
+                        optionsBuilder: (TextEditingValue textEditingValue) {
+                          final query = textEditingValue.text.toLowerCase();
+                          if (query.isEmpty) return districtSuggestions;
+                          return districtSuggestions.where(
+                            (d) => d.toLowerCase().contains(query),
+                          );
+                        },
+                        fieldViewBuilder:
+                            (context, controller, focusNode, onFieldSubmitted) {
+                          districtController = controller;
+                          return TextFormField(
+                            controller: controller,
+                            focusNode: focusNode,
+                            decoration: const InputDecoration(
+                              labelText: 'District',
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -110,6 +134,7 @@ Future<void> showAddContactDialog(
                       address: addressController.text.trim(),
                       ageRange: ageRange,
                       sex: sex,
+                      district: districtController?.text.trim(),
                       isPaused: false,
                     ),
                   );

@@ -6,6 +6,7 @@ class Contact {
   final String? address;
   final String? ageRange;
   final String? sex;
+  final String? district;
   bool isPaused;
 
   Contact({
@@ -16,6 +17,7 @@ class Contact {
     this.address,
     this.ageRange,
     this.sex,
+    this.district,
     this.isPaused = false,
   });
 
@@ -26,6 +28,7 @@ class Contact {
     String? address,
     String? ageRange,
     String? sex,
+    String? district,
   }) {
     return Contact(
       id: id,
@@ -35,6 +38,7 @@ class Contact {
       address: address ?? this.address,
       ageRange: ageRange ?? this.ageRange,
       sex: sex ?? this.sex,
+      district: district ?? this.district,
       isPaused: isPaused,
     );
   }

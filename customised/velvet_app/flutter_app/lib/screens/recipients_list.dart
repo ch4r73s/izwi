@@ -41,10 +41,15 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
   int _currentPage = 1;
   Timer? _debounce;
 
+  List<String> _districts = [];
+  final Set<String> _checkedDistricts = {};
+  bool _isSelectingByDistrict = false;
+
   @override
   void initState() {
     super.initState();
     _loadContacts(reset: true);
+    _fetchDistricts();
     _searchController.addListener(_onSearchChanged);
     _scrollController.addListener(_onScroll);
   }
@@ -111,6 +116,7 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
             address: m['address'] as String?,
             ageRange: m['ageRange'] as String?,
             sex: m['gender'] as String?,
+            district: m['district'] as String?,
             isPaused: !(m['isActive'] as bool? ?? true),
           );
         }).toList();
@@ -129,6 +135,102 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
           _isLoadingMore = false;
         });
       }
+    }
+  }
+
+  Future<void> _fetchDistricts() async {
+    try {
+      final response = await _apiClient.get(
+        '${AppConstants.recipientsPath}/districts',
+      );
+      if (!mounted) return;
+      if (response.statusCode == 200) {
+        final list = jsonDecode(response.body) as List<dynamic>;
+        setState(() => _districts = list.whereType<String>().toList());
+      }
+    } catch (_) {
+      // Non-critical — autocomplete/quick-select just falls back to empty.
+    }
+  }
+
+  void _toggleDistrictChecked(String district) {
+    setState(() {
+      if (_checkedDistricts.contains(district)) {
+        _checkedDistricts.remove(district);
+      } else {
+        _checkedDistricts.add(district);
+      }
+    });
+  }
+
+  /// Pages through every recipient in [district] via the server-side filter.
+  Future<List<Contact>> _fetchContactsByDistrict(String district) async {
+    var page = 1;
+    const pageSize = 100;
+    final matched = <Contact>[];
+
+    while (true) {
+      final response = await _apiClient.get(
+        '${AppConstants.recipientsPath}/my?page=$page&pageSize=$pageSize'
+        '&district=${Uri.encodeComponent(district)}',
+      );
+      if (response.statusCode != 200) break;
+
+      final list = jsonDecode(response.body) as List<dynamic>;
+      matched.addAll(
+        list.map((e) {
+          final m = e as Map<String, dynamic>;
+          return Contact(
+            id: m['id'] as String? ?? '',
+            name: m['name'] as String? ?? '',
+            phoneNumber: m['phoneNumber'] as String? ?? '',
+            emailAddress: m['email'] as String? ?? '',
+            address: m['address'] as String?,
+            ageRange: m['ageRange'] as String?,
+            sex: m['gender'] as String?,
+            district: m['district'] as String?,
+            isPaused: !(m['isActive'] as bool? ?? true),
+          );
+        }),
+      );
+
+      if (list.length < pageSize) break;
+      page++;
+    }
+
+    return matched;
+  }
+
+  /// Fetches every recipient across all checked districts and adds them to
+  /// the current selection without clearing it. Reuses existing `Contact`
+  /// instances already in `_contacts` where possible (the Set relies on
+  /// identity equality), and appends any not-yet-loaded ones to `_contacts`
+  /// too so their checkboxes render as checked in the visible list.
+  Future<void> _addCheckedDistricts() async {
+    if (_checkedDistricts.isEmpty) return;
+
+    setState(() => _isSelectingByDistrict = true);
+    try {
+      final results = await Future.wait(
+        _checkedDistricts.map(_fetchContactsByDistrict),
+      );
+      final matched = results.expand((r) => r).toList();
+
+      if (!mounted) return;
+      setState(() {
+        for (final contact in matched) {
+          final existingIndex = _contacts.indexWhere((c) => c.id == contact.id);
+          if (existingIndex == -1) {
+            _contacts.add(contact);
+            _selectedContacts.add(contact);
+          } else {
+            _selectedContacts.add(_contacts[existingIndex]);
+          }
+        }
+        _checkedDistricts.clear();
+      });
+    } finally {
+      if (mounted) setState(() => _isSelectingByDistrict = false);
     }
   }
 
@@ -179,6 +281,7 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
             phoneNumber: contact.phoneNumber,
             emailAddress: contact.emailAddress,
             sex: contact.sex,
+            district: contact.district,
           ),
         )
         .toList();
@@ -203,6 +306,7 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
           if (newContact.address?.isNotEmpty == true) 'address': newContact.address,
           if (newContact.ageRange?.isNotEmpty == true) 'ageRange': newContact.ageRange,
           if (newContact.sex?.isNotEmpty == true) 'gender': newContact.sex,
+          if (newContact.district?.isNotEmpty == true) 'district': newContact.district,
         },
       );
 
@@ -217,7 +321,7 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
           );
         }
       }
-    });
+    }, districtSuggestions: _districts);
   }
 
   @override
@@ -287,6 +391,57 @@ class _RecipientsListScreenState extends State<RecipientsListScreen> {
                           ? 'Loading contacts...'
                           : 'Select all contacts',
                     ),
+                  ),
+                ),
+              ),
+            if (widget.isSelectMode && _districts.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Select all in district(s)',
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        children: _districts
+                            .map(
+                              (d) => FilterChip(
+                                label: Text(d),
+                                selected: _checkedDistricts.contains(d),
+                                onSelected: _isSelectingByDistrict
+                                    ? null
+                                    : (_) => _toggleDistrictChecked(d),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      if (_checkedDistricts.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: TextButton(
+                            onPressed: _isSelectingByDistrict
+                                ? null
+                                : _addCheckedDistricts,
+                            child: Text(
+                              _isSelectingByDistrict
+                                  ? 'Adding…'
+                                  : 'Add ${_checkedDistricts.length} district'
+                                        '${_checkedDistricts.length == 1 ? '' : 's'}',
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),

@@ -49,8 +49,27 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
     }
   }
 
+  Future<List<String>> _fetchDistrictSuggestions() async {
+    try {
+      final response = await _apiClient.get(
+        '${AppConstants.recipientsPath}/districts',
+      );
+      if (response.statusCode != 200) return const [];
+      final list = jsonDecode(response.body) as List;
+      return list.whereType<String>().toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
   Future<void> _editContact() async {
-    final updated = await showEditContactDialog(context, _contact);
+    final districtSuggestions = await _fetchDistrictSuggestions();
+    if (!mounted) return;
+    final updated = await showEditContactDialog(
+      context,
+      _contact,
+      districtSuggestions: districtSuggestions,
+    );
     if (updated == null || !mounted) return;
 
     setState(() => _isSaving = true);
@@ -64,6 +83,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
           if (updated.address?.isNotEmpty == true) 'address': updated.address,
           if (updated.ageRange?.isNotEmpty == true) 'ageRange': updated.ageRange,
           if (updated.sex?.isNotEmpty == true) 'gender': updated.sex,
+          if (updated.district?.isNotEmpty == true) 'district': updated.district,
         },
       );
 
@@ -78,6 +98,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
             address: data['address'] as String?,
             ageRange: data['ageRange'] as String?,
             sex: data['gender'] as String?,
+            district: data['district'] as String?,
           );
         });
         ScaffoldMessenger.of(context).showSnackBar(
@@ -167,6 +188,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                   _DetailRow(label: 'Address', value: _contact.address?.isNotEmpty == true ? _contact.address! : '—'),
                   _DetailRow(label: 'Age Range', value: _contact.ageRange?.isNotEmpty == true ? _contact.ageRange! : '—'),
                   _DetailRow(label: 'Gender', value: _contact.sex?.isNotEmpty == true ? _contact.sex! : '—'),
+                  _DetailRow(label: 'District', value: _contact.district?.isNotEmpty == true ? _contact.district! : '—'),
                 ],
               ),
             ),

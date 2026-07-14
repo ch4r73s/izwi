@@ -3,13 +3,17 @@ import 'package:outgoing_notifications/models/Contact.dart';
 
 Future<Contact?> showEditContactDialog(
   BuildContext context,
-  Contact contact,
-) {
+  Contact contact, {
+  List<String> districtSuggestions = const [],
+}) {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController(text: contact.name);
   final phoneController = TextEditingController(text: contact.phoneNumber);
   final emailController = TextEditingController(text: contact.emailAddress);
   final addressController = TextEditingController(text: contact.address ?? '');
+  TextEditingController? districtController;
+  final initialDistrict =
+      contact.district?.isNotEmpty == true ? contact.district! : 'Harare';
   String? ageRange = contact.ageRange?.isNotEmpty == true ? contact.ageRange : null;
   String? sex = contact.sex?.isNotEmpty == true ? contact.sex : null;
 
@@ -82,6 +86,28 @@ Future<Contact?> showEditContactDialog(
                         ],
                         onChanged: (v) => setState(() => sex = v),
                       ),
+                      const SizedBox(height: 10),
+                      Autocomplete<String>(
+                        initialValue: TextEditingValue(text: initialDistrict),
+                        optionsBuilder: (TextEditingValue textEditingValue) {
+                          final query = textEditingValue.text.toLowerCase();
+                          if (query.isEmpty) return districtSuggestions;
+                          return districtSuggestions.where(
+                            (d) => d.toLowerCase().contains(query),
+                          );
+                        },
+                        fieldViewBuilder:
+                            (context, controller, focusNode, onFieldSubmitted) {
+                          districtController = controller;
+                          return TextFormField(
+                            controller: controller,
+                            focusNode: focusNode,
+                            decoration: const InputDecoration(
+                              labelText: 'District',
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -104,6 +130,7 @@ Future<Contact?> showEditContactDialog(
                       address: addressController.text.trim(),
                       ageRange: ageRange,
                       sex: sex,
+                      district: districtController?.text.trim(),
                     ),
                   );
                 },
